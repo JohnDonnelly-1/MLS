@@ -1,0 +1,49 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Security Clearances{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Security Clearances</h2>
+
+    <p>
+        <a href="{% url 'mls_core:clearance_create' %}" class="btn">Create New Clearance</a>
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Security Labels</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for clearance in clearances %}
+            <tr>
+                <td><strong>{{ clearance.name }}</strong></td>
+                <td>
+                    {% for label in clearance.securities.all %}
+                        <span class="label-badge" style="background-color: {{ label.color }};">
+                            {{ label.short_code }}
+                        </span>
+                    {% empty %}
+                        -
+                    {% endfor %}
+                </td>
+                <td>{{ clearance.description|truncatewords:10 }}</td>
+                <td>
+                    <a href="{% url 'mls_core:clearance_edit' clearance.id %}">Edit</a> |
+                    <a href="{% url 'mls_core:clearance_delete' clearance.id %}">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No security clearances found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

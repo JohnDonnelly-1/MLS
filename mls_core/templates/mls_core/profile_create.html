@@ -1,0 +1,57 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Create Security Profile{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Create Security Profile for: {{ user.username }}</h2>
+
+    <p><a href="{% url 'mls_core:profile_list' %}" class="btn btn-secondary">Back to List</a></p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="clearances">Direct Clearance</label>
+            <select id="clearances" name="clearances">
+                <option value="">-- None --</option>
+                {% for clearance in all_clearances %}
+                    <option value="{{ clearance.id }}">{{ clearance.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>MLS Groups</label>
+            {% for group in all_mls_groups %}
+                <div>
+                    <label>
+                        <input type="checkbox" name="mls_groups" value="{{ group.id }}">
+                        {{ group.name }} - {{ group.clearance_template.name }}
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            <label>DAC Groups</label>
+            {% for group in all_dac_groups %}
+                <div>
+                    <label>
+                        <input type="checkbox" name="dac_groups" value="{{ group.id }}">
+                        {{ group.name }}
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" rows="4"></textarea>
+        </div>
+
+        <button type="submit" class="btn">Create Profile</button>
+        <a href="{% url 'mls_core:profile_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

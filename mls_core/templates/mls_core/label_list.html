@@ -1,0 +1,57 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Security Labels{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Security Labels</h2>
+
+    <p>
+        <a href="{% url 'mls_core:label_create' %}" class="btn">Create New Label</a>
+    </p>
+
+    <form method="get" style="margin-bottom: 20px;">
+        <label>Filter by type:</label>
+        <select name="type" onchange="this.form.submit()">
+            <option value="">All Types</option>
+            {% for value, display in label_types %}
+                <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ display }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Short Code</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Rank</th>
+                <th>Color</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for label in labels %}
+            <tr>
+                <td><span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span></td>
+                <td>{{ label.name }}</td>
+                <td>{{ label.get_label_type_display }}</td>
+                <td>{{ label.rank }}</td>
+                <td>{{ label.color }}</td>
+                <td>{{ label.description|truncatewords:10 }}</td>
+                <td>
+                    <a href="{% url 'mls_core:label_edit' label.id %}">Edit</a> |
+                    <a href="{% url 'mls_core:label_delete' label.id %}">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7">No security labels found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

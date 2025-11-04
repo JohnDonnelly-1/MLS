@@ -1,0 +1,50 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Edit DAC Group{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Edit DAC Group: {{ group.name }}</h2>
+
+    <p><a href="{% url 'mls_core:dac_group_list' %}" class="btn btn-secondary">Back to List</a></p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="is_active">
+                <input type="checkbox" id="is_active" name="is_active" {% if group.is_active %}checked{% endif %}>
+                Group Active
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" required maxlength="100" value="{{ group.name }}">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="3">{{ group.description }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Parent Groups (optional - for inheritance)</label>
+            {% for parent in all_groups %}
+                <div>
+                    <label>
+                        <input type="checkbox" name="parent_groups" value="{{ parent.id }}"
+                               {% if parent in group.parent_groups.all %}checked{% endif %}>
+                        {{ parent.name }}
+                    </label>
+                </div>
+            {% empty %}
+                <p>No other groups available for inheritance.</p>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn">Save Changes</button>
+        <a href="{% url 'mls_core:dac_group_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

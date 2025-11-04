@@ -1,0 +1,42 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Create DAC Group{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Create DAC Group</h2>
+
+    <p><a href="{% url 'mls_core:dac_group_list' %}" class="btn btn-secondary">Back to List</a></p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" required maxlength="100" placeholder="e.g., Engineering, Management">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Parent Groups (optional - for inheritance)</label>
+            {% for group in all_groups %}
+                <div>
+                    <label>
+                        <input type="checkbox" name="parent_groups" value="{{ group.id }}">
+                        {{ group.name }}
+                    </label>
+                </div>
+            {% empty %}
+                <p>No existing groups to inherit from.</p>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn">Create DAC Group</button>
+        <a href="{% url 'mls_core:dac_group_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

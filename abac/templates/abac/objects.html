@@ -1,0 +1,34 @@
+{% extends "abac/base.html" %}
+
+{% block content %}
+    <table class="table">
+      <thead>
+        <tr>
+            <td>
+                Object
+            </td>
+            <td>
+                Object Type
+            </td>
+            <td>
+                Security Labels
+            </td>
+        </tr>
+      </thead>
+    {% for obj in objs %}
+    
+    <tr role="button" onclick="window.location='{{ obj.get_absolute_url }}';">
+        <td>{{ obj.name }}</td>
+        <td>{{ obj.obj_type }}</td>
+        <td>
+            {% for label in obj.securities.all %}
+                {{label.short_code}},
+            {% endfor %}
+        </td>
+        
+    </tr>
+
+    {% endfor %}
+
+    </table>
+{% endblock content  %}

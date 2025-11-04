@@ -1,0 +1,53 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}MLS Groups{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>MLS Groups (AND Logic)</h2>
+
+    <p>
+        <a href="{% url 'mls_core:mls_group_create' %}" class="btn">Create New MLS Group</a>
+    </p>
+
+    <p><em>Users get ALL labels from ALL groups they belong to.</em></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Active</th>
+                <th>Clearance Template</th>
+                <th>Parent Groups</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in groups %}
+            <tr>
+                <td><strong>{{ group.name }}</strong></td>
+                <td>{{ group.is_active|yesno:"✓,✗" }}</td>
+                <td>{{ group.clearance_template.name }}</td>
+                <td>
+                    {% for parent in group.parent_groups.all %}
+                        {{ parent.name }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        -
+                    {% endfor %}
+                </td>
+                <td>{{ group.description|truncatewords:10 }}</td>
+                <td>
+                    <a href="{% url 'mls_core:mls_group_edit' group.id %}">Edit</a> |
+                    <a href="{% url 'mls_core:mls_group_delete' group.id %}">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No MLS groups found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

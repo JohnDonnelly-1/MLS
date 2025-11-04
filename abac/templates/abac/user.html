@@ -1,0 +1,27 @@
+{% extends "abac/base.html" %}
+
+{% block content %}
+
+<div class="container"
+<div class="card">
+    <a class="h4" href={% url "abac:users"%}>Return to All Users</a>
+
+    <p class="h2">User: {{user.name}} </p>
+
+    <ul class="h3">Security Levels</p>
+    {% for label in user.securities.all %}
+    {% if label.label_type == "LVL" %}
+        <li> {{label.short_code}} - {{label.name}}</li>
+    {% endif%}
+    {% endfor %}
+    </ul>
+    <ul class="h3">Compartments</p>
+    {% for label in user.securities.all %}
+    {% if label.label_type == "CAT" %}
+    <li> {{label.short_code}} - {{label.name}}</li>
+    {% endif%}
+    {% endfor %}
+    </ul>
+</div>
+</div>
+{% endblock content%}

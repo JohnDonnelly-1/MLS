@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classification Helper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .modal-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            max-width: 1400px;
+            width: 100%;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-header {
+            background-color: #333;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 {
+            margin: 0;
+            font-size: 16px;
+        }
+        .close-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 8px;
+            line-height: 1;
+        }
+        .close-button:hover {
+            color: #ccc;
+        }
+        .classification-banner {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #c82333;
+        }
+        .classification-banner.empty {
+            background-color: #6c757d;
+            font-size: 12px;
+            font-weight: normal;
+            padding: 8px 15px;
+        }
+        .modal-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .selector-column {
+            flex: 1;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .applied-column {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+        .section {
+            margin-bottom: 12px;
+        }
+        .section-header {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            padding: 4px 8px;
+            background-color: #e9ecef;
+            border-left: 3px solid #007bff;
+        }
+        .section-header.sci { border-left-color: #800080; }
+        .section-header.sap { border-left-color: #8B4513; }
+        .section-header.diss { border-left-color: #28a745; }
+        .level-dropdown {
+            width: 100%;
+            padding: 5px;
+            font-size: 12px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .level-dropdown:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .choice-item {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            margin-bottom: 2px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            cursor: pointer;
+            background-color: white;
+            transition: all 0.1s;
+            font-size: 12px;
+        }
+        .choice-item:hover {
+            background-color: #e7f3ff;
+            border-color: #007bff;
+        }
+        .choice-item input[type="checkbox"] {
+            margin-right: 6px;
+            cursor: pointer;
+        }
+        .label-badge {
+            display: inline-block;
+            padding: 1px 4px;
+            border-radius: 2px;
+            margin-right: 4px;
+            font-size: 10px;
+            color: white;
+            font-weight: bold;
+        }
+        .applied-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 8px;
+            margin-bottom: 3px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .applied-item .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 2px;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        .applied-item .remove-btn:hover {
+            background-color: #c82333;
+        }
+        .applied-level {
+            padding: 6px 8px;
+            background-color: white;
+            border: 1px solid #007bff;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .modal-footer {
+            padding: 8px 15px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .btn {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #218838;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .empty-state {
+            color: #999;
+            font-style: italic;
+            padding: 10px;
+            text-align: center;
+            font-size: 11px;
+        }
+        .column-title {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 2px solid #007bff;
+        }
+        @media (max-width: 900px) {
+            .modal-body {
+                flex-direction: column;
+            }
+            .selector-column {
+                border-right: none;
+                border-bottom: 2px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="modal-container">
+    <div class="modal-header">
+        <h2>Classification Helper</h2>
+        <a href="{{ return_url }}" class="close-button" title="Close">&times;</a>
+    </div>
+
+    <div id="classificationBanner" class="classification-banner empty">
+        Select classification level and markings below
+    </div>
+
+    <form id="classificationForm" method="post" action="{{ return_url }}">
+        {% csrf_token %}
+        <input type="hidden" name="classification_selected" value="1">
+        <input type="hidden" id="selected_labels" name="selected_label_ids" value="">
+
+        <div class="modal-body">
+            <!-- Left Column: Choices -->
+            <div class="selector-column">
+                <div class="column-title">Available Markings</div>
+
+                <!-- Classification Level Dropdown -->
+                <div class="section">
+                    <div class="section-header">Classification Level *</div>
+                    <select id="levelSelect" class="level-dropdown" required>
+                        <option value="">-- Select Level --</option>
+                        {% for level in levels %}
+                        <option value="{{ level.id }}"
+                                data-code="{{ level.short_code }}"
+                                data-name="{{ level.name }}"
+                                data-color="{{ level.color }}"
+                                {% if existing_level == level.id %}selected{% endif %}>
+                            {{ level.short_code }} - {{ level.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- SCI Caveats -->
+                {% if sci_caveats %}
+                <div class="section">
+                    <div class="section-header sci">SCI Caveats</div>
+                    {% for label in sci_caveats %}
+                    <label class="choice-item">
+                        <input type="checkbox" class="caveat-checkbox"
+                               value="{{ label.id }}"
+                               data-code="{{ label.short_code }}"
+                               data-name="{{ label.name }}"
+                               data-color="{{ label.color }}"
+                               data-type="sci"
+                               {% if label.id in existing_labels %}checked{% endif %}>
+                        <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
+                        {{ label.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- SAP Access -->
+                {% if sap_access %}
+                <div class="section">
+                    <div class="section-header sap">SAP Access</div>
+                    {% for label in sap_access %}
+                    <label class="choice-item">
+                        <input type="checkbox" class="caveat-checkbox"
+                               value="{{ label.id }}"
+                               data-code="{{ label.short_code }}"
+                               data-name="{{ label.name }}"
+                               data-color="{{ label.color }}"
+                               data-type="sap"
+                               {% if label.id in existing_labels %}checked{% endif %}>
+                        <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
+                        {{ label.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Dissemination Controls -->
+                {% if dissemination %}
+                <div class="section">
+                    <div class="section-header diss">Dissemination Controls</div>
+                    {% for label in dissemination %}
+                    <label class="choice-item">
+                        <input type="checkbox" class="caveat-checkbox"
+                               value="{{ label.id }}"
+                               data-code="{{ label.short_code }}"
+                               data-name="{{ label.name }}"
+                               data-color="{{ label.color }}"
+                               data-type="diss"
+                               {% if label.id in existing_labels %}checked{% endif %}>
+                        <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
+                        {{ label.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column: Applied -->
+            <div class="applied-column">
+                <div class="column-title">Applied Classification</div>
+
+                <!-- Applied Level -->
+                <div class="section">
+                    <div class="section-header">Classification Level</div>
+                    <div id="appliedLevel" class="empty-state">No level selected</div>
+                </div>
+
+                <!-- Applied SCI -->
+                <div class="section">
+                    <div class="section-header sci">SCI Caveats</div>
+                    <div id="appliedSCI" class="empty-state">None selected</div>
+                </div>
+
+                <!-- Applied SAP -->
+                <div class="section">
+                    <div class="section-header sap">SAP Access</div>
+                    <div id="appliedSAP" class="empty-state">None selected</div>
+                </div>
+
+                <!-- Applied Dissemination -->
+                <div class="section">
+                    <div class="section-header diss">Dissemination</div>
+                    <div id="appliedDiss" class="empty-state">None selected</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <a href="{{ return_url }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Apply Classification</button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const levelSelect = document.getElementById('levelSelect');
+    const checkboxes = document.querySelectorAll('.caveat-checkbox');
+    const banner = document.getElementById('classificationBanner');
+    const appliedLevel = document.getElementById('appliedLevel');
+    const appliedSCI = document.getElementById('appliedSCI');
+    const appliedSAP = document.getElementById('appliedSAP');
+    const appliedDiss = document.getElementById('appliedDiss');
+    const selectedLabelsInput = document.getElementById('selected_labels');
+
+    function updateDisplay() {
+        const selectedIds = [];
+        const markingParts = [];
+
+        // Get selected level
+        const levelOption = levelSelect.selectedOptions[0];
+        if (levelOption && levelOption.value) {
+            const code = levelOption.dataset.code;
+            const name = levelOption.dataset.name;
+            const color = levelOption.dataset.color;
+
+            markingParts.push(code);
+            selectedIds.push(levelOption.value);
+
+            appliedLevel.innerHTML = `
+                <div class="applied-level">
+                    <span class="label-badge" style="background-color: ${color};">${code}</span>
+                    ${name}
+                </div>
+            `;
+        } else {
+            appliedLevel.innerHTML = '<div class="empty-state">No level selected</div>';
+        }
+
+        // Organize selected caveats by type
+        const sciItems = [];
+        const sapItems = [];
+        const dissItems = [];
+
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                const code = checkbox.dataset.code;
+                const name = checkbox.dataset.name;
+                const color = checkbox.dataset.color;
+                const type = checkbox.dataset.type;
+
+                selectedIds.push(checkbox.value);
+
+                const item = {
+                    code: code,
+                    name: name,
+                    color: color,
+                    value: checkbox.value,
+                    checkbox: checkbox
+                };
+
+                if (type === 'sci') {
+                    sciItems.push(item);
+                } else if (type === 'sap') {
+                    sapItems.push(item);
+                } else if (type === 'diss') {
+                    dissItems.push(item);
+                }
+            }
+        });
+
+        // Update SCI section
+        if (sciItems.length > 0) {
+            appliedSCI.innerHTML = sciItems.map(item => `
+                <div class="applied-item">
+                    <div>
+                        <span class="label-badge" style="background-color: ${item.color};">${item.code}</span>
+                        ${item.name}
+                    </div>
+                    <button type="button" class="remove-btn" data-value="${item.value}">Remove</button>
+                </div>
+            `).join('');
+            markingParts.push(...sciItems.map(i => i.code));
+        } else {
+            appliedSCI.innerHTML = '<div class="empty-state">None selected</div>';
+        }
+
+        // Update SAP section
+        if (sapItems.length > 0) {
+            appliedSAP.innerHTML = sapItems.map(item => `
+                <div class="applied-item">
+                    <div>
+                        <span class="label-badge" style="background-color: ${item.color};">${item.code}</span>
+                        ${item.name}
+                    </div>
+                    <button type="button" class="remove-btn" data-value="${item.value}">Remove</button>
+                </div>
+            `).join('');
+            markingParts.push(...sapItems.map(i => i.code));
+        } else {
+            appliedSAP.innerHTML = '<div class="empty-state">None selected</div>';
+        }
+
+        // Update Dissemination section
+        if (dissItems.length > 0) {
+            appliedDiss.innerHTML = dissItems.map(item => `
+                <div class="applied-item">
+                    <div>
+                        <span class="label-badge" style="background-color: ${item.color};">${item.code}</span>
+                        ${item.name}
+                    </div>
+                    <button type="button" class="remove-btn" data-value="${item.value}">Remove</button>
+                </div>
+            `).join('');
+            markingParts.push(...dissItems.map(i => i.code));
+        } else {
+            appliedDiss.innerHTML = '<div class="empty-state">None selected</div>';
+        }
+
+        // Add event listeners to remove buttons
+        document.querySelectorAll('.remove-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const value = this.dataset.value;
+                const checkbox = document.querySelector(`input[value="${value}"]`);
+                if (checkbox) {
+                    checkbox.checked = false;
+                    updateDisplay();
+                }
+            });
+        });
+
+        // Update hidden input
+        selectedLabelsInput.value = selectedIds.join(',');
+
+        // Update banner with level color
+        if (markingParts.length > 0) {
+            banner.textContent = markingParts.join(' // ');
+            banner.classList.remove('empty');
+
+            // Set banner color to level color
+            if (levelOption && levelOption.value) {
+                const levelColor = levelOption.dataset.color;
+                banner.style.backgroundColor = levelColor;
+                // Adjust border color to be slightly darker
+                const rgb = levelColor.match(/\d+/g);
+                if (rgb && rgb.length >= 3) {
+                    const darkerColor = `rgb(${Math.max(0, parseInt(rgb[0]) - 30)}, ${Math.max(0, parseInt(rgb[1]) - 30)}, ${Math.max(0, parseInt(rgb[2]) - 30)})`;
+                    banner.style.borderBottomColor = darkerColor;
+                } else {
+                    // For hex colors, use a darker shade
+                    banner.style.borderBottomColor = '#000';
+                }
+            }
+        } else {
+            banner.textContent = 'Select classification level and markings below';
+            banner.classList.add('empty');
+            banner.style.backgroundColor = '#6c757d';
+            banner.style.borderBottomColor = '#5a6268';
+        }
+    }
+
+    // Listen for changes
+    levelSelect.addEventListener('change', updateDisplay);
+    checkboxes.forEach(cb => cb.addEventListener('change', updateDisplay));
+
+    // Initial update
+    updateDisplay();
+});
+</script>
+
+</body>
+</html>

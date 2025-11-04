@@ -1,0 +1,55 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Create Security Label{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Create Security Label</h2>
+
+    <p><a href="{% url 'mls_core:label_list' %}" class="btn btn-secondary">Back to List</a></p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="short_code">Short Code *</label>
+            <input type="text" id="short_code" name="short_code" required maxlength="10" placeholder="e.g., TS, SECRET, CRYPTO">
+        </div>
+
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" required maxlength="100" placeholder="e.g., Top Secret, Crypto Compartment">
+        </div>
+
+        <div class="form-group">
+            <label for="label_type">Type *</label>
+            <select id="label_type" name="label_type" required>
+                <option value="">-- Select Type --</option>
+                {% for value, display in label_types %}
+                    <option value="{{ value }}">{{ display }}</option>
+                {% endfor %}
+            </select>
+            <small>Level = hierarchical (UNCLASS < SECRET < TOP SECRET), Category = compartment (CRYPTO, INTEL, NATO)</small>
+        </div>
+
+        <div class="form-group">
+            <label for="rank">Rank</label>
+            <input type="number" id="rank" name="rank" value="0" min="0">
+            <small>For levels: higher rank = higher classification. For categories: usually 0.</small>
+        </div>
+
+        <div class="form-group">
+            <label for="color">Color</label>
+            <input type="color" id="color" name="color" value="#808080">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn">Create Label</button>
+        <a href="{% url 'mls_core:label_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

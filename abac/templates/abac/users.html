@@ -1,0 +1,30 @@
+{% extends "abac/base.html" %}
+
+{% block content %}
+    <table class="table">
+      <thead>
+        <tr>
+            <td>
+                User Name
+            </td>
+            <td>
+                Clearances
+            </td>
+        </tr>
+      </thead>
+    {% for user in users %}
+    
+    <tr class="" role="button" onclick="window.location='{{ user.get_absolute_url }}';">
+        <td>{{ user.name }}</td>
+        <td>
+            {% for label in user.securities.all %}
+                {{label.short_code}},
+            {% endfor %}
+        </td>
+        
+    </tr>
+
+    {% endfor %}
+
+    </table>
+{% endblock content %}

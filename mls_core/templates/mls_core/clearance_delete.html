@@ -1,0 +1,46 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Delete Security Clearance{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Delete Security Clearance</h2>
+
+    <p><a href="{% url 'mls_core:clearance_list' %}" class="btn btn-secondary">Back to List</a></p>
+
+    <div class="message warning">
+        <strong>Warning!</strong> Are you sure you want to delete this security clearance?
+    </div>
+
+    <table>
+        <tr>
+            <th>Name</th>
+            <td>{{ clearance.name }}</td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td>{{ clearance.description|default:"-" }}</td>
+        </tr>
+        <tr>
+            <th>Security Labels</th>
+            <td>
+                {% for label in clearance.securities.all %}
+                    <span class="label-badge" style="background-color: {{ label.color }};">
+                        {{ label.short_code }}
+                    </span>
+                {% empty %}
+                    -
+                {% endfor %}
+            </td>
+        </tr>
+    </table>
+
+    <p><strong>Note:</strong> This may affect security profiles, MLS groups, and objects using this clearance.</p>
+
+    <form method="post" style="margin-top: 20px;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete Clearance</button>
+        <a href="{% url 'mls_core:clearance_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

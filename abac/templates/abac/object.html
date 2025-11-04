@@ -1,0 +1,30 @@
+{% extends "abac/base.html" %}
+
+{% block content %}
+
+<div class="container"
+<div class="card">
+    <a class="h4" href={% url "abac:objects"%}>Return to All Objects</a>
+    <br><br>
+    <p class="h2">Object: {{obj.name}} </p>
+    <p> Object Type: {{ obj.obj_type}}</p>
+    <p> Coords: x={{ obj.x_coords}}, y={{ obj.y_coords}}</p>
+    <hr>   
+    <ul class="h3">Security Levels</p>
+    {% for label in obj.securities.all %}
+    {% if label.label_type == "LVL" %}
+        <li class="h5"> {{label.short_code}} - {{label.name}}</li>
+    {% endif%}
+    {% endfor %}
+    </ul>
+    <hr>
+    <ul class="h3">Compartments</p>
+    {% for label in obj.securities.all %}
+    {% if label.label_type == "CAT" %}
+    <li class="h5"> {{label.short_code}} - {{label.name}}</li>
+    {% endif%}
+    {% endfor %}
+    </ul>
+</div>
+</div>
+{% endblock content%}

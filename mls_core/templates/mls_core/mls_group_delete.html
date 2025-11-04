@@ -1,0 +1,52 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Delete MLS Group{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Delete MLS Group</h2>
+
+    <p><a href="{% url 'mls_core:mls_group_list' %}" class="btn btn-secondary">Back to List</a></p>
+
+    <div class="message warning">
+        <strong>Warning!</strong> Are you sure you want to delete this MLS group?
+    </div>
+
+    <table>
+        <tr>
+            <th>Name</th>
+            <td>{{ group.name }}</td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td>{{ group.description|default:"-" }}</td>
+        </tr>
+        <tr>
+            <th>Clearance Template</th>
+            <td>{{ group.clearance_template.name }}</td>
+        </tr>
+        <tr>
+            <th>Parent Groups</th>
+            <td>
+                {% for parent in group.parent_groups.all %}
+                    {{ parent.name }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    -
+                {% endfor %}
+            </td>
+        </tr>
+        <tr>
+            <th>Active</th>
+            <td>{{ group.is_active|yesno:"Yes,No" }}</td>
+        </tr>
+    </table>
+
+    <p><strong>Note:</strong> This may affect security profiles using this group.</p>
+
+    <form method="post" style="margin-top: 20px;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete MLS Group</button>
+        <a href="{% url 'mls_core:mls_group_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

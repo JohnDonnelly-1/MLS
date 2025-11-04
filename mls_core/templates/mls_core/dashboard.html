@@ -1,0 +1,148 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}MLS Core Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>MLS Core Security Dashboard</h2>
+
+    {% if user.is_authenticated %}
+        <p>Welcome, <strong>{{ user.username }}</strong></p>
+
+        {% if user_profile %}
+            <h3>Your Security Profile</h3>
+            <p>
+                <strong>Active:</strong> {{ user_profile.is_active|yesno:"Yes,No" }}<br>
+                <strong>Direct Clearance:</strong> {{ user_profile.clearances.name|default:"None" }}<br>
+                <strong>MLS Groups:</strong> {{ user_profile.mls_groups.count }}<br>
+                <strong>DAC Groups:</strong> {{ user_profile.dac_groups.count }}
+            </p>
+        {% else %}
+            <p>You do not have a security profile yet.</p>
+        {% endif %}
+    {% else %}
+        <p>Please log in to view your security profile.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>System Overview</h2>
+    <table>
+        <tr>
+            <th>Category</th>
+            <th>Count</th>
+        </tr>
+        <tr>
+            <td>Security Profiles</td>
+            <td>{{ total_users }}</td>
+        </tr>
+        <tr>
+            <td>Security Labels</td>
+            <td>{{ total_labels }}</td>
+        </tr>
+        <tr>
+            <td>Security Clearances</td>
+            <td>{{ total_clearances }}</td>
+        </tr>
+        <tr>
+            <td>MLS Groups</td>
+            <td>{{ total_mls_groups }}</td>
+        </tr>
+        <tr>
+            <td>DAC Groups</td>
+            <td>{{ total_dac_groups }}</td>
+        </tr>
+    </table>
+</div>
+
+{% if perms.mls_core.security_manager or perms.mls_core.senior_security_manager %}
+<div class="card">
+    <h2>Quick Actions</h2>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        {% if perms.mls_core.security_manager %}
+            <a href="{% url 'mls_core:profile_list' %}" class="btn">Manage Security Profiles</a>
+        {% endif %}
+        {% if perms.mls_core.senior_security_manager %}
+            <a href="{% url 'mls_core:label_create' %}" class="btn">Create Security Label</a>
+            <a href="{% url 'mls_core:clearance_create' %}" class="btn">Create Clearance</a>
+            <a href="{% url 'mls_core:mls_group_create' %}" class="btn">Create MLS Group</a>
+            <a href="{% url 'mls_core:dac_group_create' %}" class="btn">Create DAC Group</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <h2>Classification Helper</h2>
+    <p>Try the interactive classification helper - select security markings for documents, wiki pages, and other objects.</p>
+
+    {% if total_labels == 0 %}
+    <div class="message warning" style="margin-bottom: 15px;">
+        <strong>No security labels found!</strong> Create sample labels to try the classification helper.
+    </div>
+    {% elif total_labels < 10 %}
+    <div class="message warning" style="margin-bottom: 15px;">
+        <strong>Few labels available.</strong> Consider adding more sample labels for a complete demo.
+    </div>
+    {% endif %}
+
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="{% url 'mls_core:classification_helper' %}?return_url={% url 'mls_core:dashboard' %}" class="btn" style="background-color: #28a745;">
+            Try Classification Helper
+        </a>
+        {% if perms.mls_core.senior_security_manager %}
+        <button onclick="setupSampleLabels()" class="btn" style="background-color: #17a2b8;">
+            Setup Sample Labels
+        </button>
+        {% endif %}
+    </div>
+
+    <div style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
+        <h4 style="margin-top: 0;">What is it?</h4>
+        <p style="margin-bottom: 10px;">An interactive UI for applying security markings organized by:</p>
+        <ul style="margin: 0; padding-left: 20px;">
+            <li><strong>Classification Level</strong> - UNCLASS, CONFIDENTIAL, SECRET, TOP SECRET</li>
+            <li><strong>SCI Caveats</strong> - Sensitive Compartmented Information</li>
+            <li><strong>SAP Access</strong> - Special Access Programs</li>
+            <li><strong>Dissemination</strong> - NOFORN, ORCON, PROPIN, FOUO, etc.</li>
+        </ul>
+        <p style="margin-top: 10px; margin-bottom: 0;"><em>Use it when saving files, wiki pages, documents, or any classified content.</em></p>
+    </div>
+
+    <div id="setupMessage" style="margin-top: 15px; display: none;" class="message success"></div>
+</div>
+
+<script>
+function setupSampleLabels() {
+    if (!confirm('This will create sample security labels (levels, SCI caveats, SAP programs, dissemination controls). Continue?')) {
+        return;
+    }
+
+    const button = event.target;
+    button.disabled = true;
+    button.textContent = 'Creating labels...';
+
+    const messageDiv = document.getElementById('setupMessage');
+    messageDiv.style.display = 'none';
+
+    // Call management command via shell (this is a demo - in production use a proper endpoint)
+    fetch('/admin/', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    }).then(() => {
+        messageDiv.innerHTML = '<strong>Sample labels created!</strong> Run: <code>docker-compose exec web python manage.py setup_sample_labels</code><br>Then refresh this page to see the labels.';
+        messageDiv.style.display = 'block';
+        button.textContent = 'Setup Sample Labels';
+        button.disabled = false;
+    }).catch(() => {
+        messageDiv.className = 'message warning';
+        messageDiv.innerHTML = '<strong>Note:</strong> Run this command in your terminal:<br><code>docker-compose exec web python manage.py setup_sample_labels</code><br>Then refresh this page.';
+        messageDiv.style.display = 'block';
+        button.textContent = 'Setup Sample Labels';
+        button.disabled = false;
+    });
+}
+</script>
+{% endblock %}

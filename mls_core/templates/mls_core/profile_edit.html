@@ -1,0 +1,74 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Edit Security Profile: {{ profile.user.username }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Edit Security Profile: {{ profile.user.username }}</h2>
+
+    <p><a href="{% url 'mls_core:profile_detail' profile.id %}" class="btn btn-secondary">Back to Profile</a></p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="is_active">
+                <input type="checkbox" id="is_active" name="is_active" {% if profile.is_active %}checked{% endif %}>
+                Profile Active
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label for="clearances">Direct Clearance</label>
+            <select id="clearances" name="clearances">
+                <option value="">-- None --</option>
+                {% for clearance in all_clearances %}
+                    <option value="{{ clearance.id }}" {% if profile.clearances.id == clearance.id %}selected{% endif %}>
+                        {{ clearance.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="clearance_expires">Clearance Expiration Date</label>
+            <input type="date" id="clearance_expires" name="clearance_expires"
+                   value="{{ profile.clearance_expires|date:'Y-m-d'|default:'' }}">
+        </div>
+
+        <div class="form-group">
+            <label>MLS Groups (AND logic - user gets ALL labels from ALL groups)</label>
+            {% for group in all_mls_groups %}
+                <div>
+                    <label>
+                        <input type="checkbox" name="mls_groups" value="{{ group.id }}"
+                               {% if group in profile.mls_groups.all %}checked{% endif %}>
+                        {{ group.name }} - {{ group.clearance_template.name }}
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            <label>DAC Groups (OR logic - user needs ANY matching group)</label>
+            {% for group in all_dac_groups %}
+                <div>
+                    <label>
+                        <input type="checkbox" name="dac_groups" value="{{ group.id }}"
+                               {% if group in profile.dac_groups.all %}checked{% endif %}>
+                        {{ group.name }}
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" rows="4">{{ profile.notes }}</textarea>
+        </div>
+
+        <button type="submit" class="btn">Save Changes</button>
+        <a href="{% url 'mls_core:profile_detail' profile.id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Create Security Clearance{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Create Security Clearance</h2>
+
+    <p><a href="{% url 'mls_core:clearance_list' %}" class="btn btn-secondary">Back to List</a></p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" required maxlength="100" placeholder="e.g., Top Secret Cleared, Secret Crypto Access">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Security Labels *</label>
+            <p><em>Select all labels included in this clearance.</em></p>
+            {% for label in labels %}
+                <div>
+                    <label>
+                        <input type="checkbox" name="securities" value="{{ label.id }}">
+                        <span class="label-badge" style="background-color: {{ label.color }};">
+                            {{ label.short_code }}
+                        </span>
+                        {{ label.name }} ({{ label.get_label_type_display }})
+                    </label>
+                </div>
+            {% empty %}
+                <p class="message warning">No security labels available. Please create labels first.</p>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn">Create Clearance</button>
+        <a href="{% url 'mls_core:clearance_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

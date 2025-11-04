@@ -1,0 +1,53 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Security Profiles{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Security Profiles</h2>
+
+    <form method="get" style="margin-bottom: 20px;">
+        <div class="form-group">
+            <input type="text" name="q" placeholder="Search by username or name..." value="{{ query|default:'' }}" style="width: 300px;">
+            <button type="submit" class="btn">Search</button>
+            {% if query %}
+                <a href="{% url 'mls_core:profile_list' %}" class="btn btn-secondary">Clear</a>
+            {% endif %}
+        </div>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Active</th>
+                <th>Direct Clearance</th>
+                <th>MLS Groups</th>
+                <th>DAC Groups</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for profile in profiles %}
+            <tr>
+                <td>{{ profile.user.username }}</td>
+                <td>{{ profile.user.get_full_name|default:"-" }}</td>
+                <td>{{ profile.is_active|yesno:"✓,✗" }}</td>
+                <td>{{ profile.clearances.name|default:"-" }}</td>
+                <td>{{ profile.mls_groups.count }}</td>
+                <td>{{ profile.dac_groups.count }}</td>
+                <td>
+                    <a href="{% url 'mls_core:profile_detail' profile.id %}">View</a> |
+                    <a href="{% url 'mls_core:profile_edit' profile.id %}">Edit</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7">No security profiles found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

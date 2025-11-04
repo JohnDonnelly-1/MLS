@@ -1,0 +1,55 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Create MLS Group{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Create MLS Group</h2>
+
+    <p><a href="{% url 'mls_core:mls_group_list' %}" class="btn btn-secondary">Back to List</a></p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" required maxlength="100" placeholder="e.g., Secret Personnel">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="clearance_template">Clearance Template *</label>
+            <select id="clearance_template" name="clearance_template" required>
+                <option value="">-- Select Clearance --</option>
+                {% for clearance in clearances %}
+                    <option value="{{ clearance.id }}">
+                        {{ clearance.name }}
+                        ({% for label in clearance.securities.all %}{{ label.short_code }}{% if not forloop.last %}, {% endif %}{% endfor %})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Parent Groups (optional - for inheritance)</label>
+            {% for group in all_groups %}
+                <div>
+                    <label>
+                        <input type="checkbox" name="parent_groups" value="{{ group.id }}">
+                        {{ group.name }}
+                    </label>
+                </div>
+            {% empty %}
+                <p>No existing groups to inherit from.</p>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn">Create MLS Group</button>
+        <a href="{% url 'mls_core:mls_group_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

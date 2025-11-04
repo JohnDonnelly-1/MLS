@@ -1,0 +1,108 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Security Profile: {{ profile.user.username }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Security Profile: {{ profile.user.username }}</h2>
+
+    <p><a href="{% url 'mls_core:profile_list' %}" class="btn btn-secondary">Back to List</a></p>
+
+    <h3>User Information</h3>
+    <table>
+        <tr>
+            <th>Username</th>
+            <td>{{ profile.user.username }}</td>
+        </tr>
+        <tr>
+            <th>Full Name</th>
+            <td>{{ profile.user.get_full_name|default:"-" }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ profile.user.email|default:"-" }}</td>
+        </tr>
+        <tr>
+            <th>Profile Active</th>
+            <td>{{ profile.is_active|yesno:"Yes,No" }}</td>
+        </tr>
+        <tr>
+            <th>Clearance Expires</th>
+            <td>{{ profile.clearance_expires|default:"-" }}</td>
+        </tr>
+        <tr>
+            <th>Notes</th>
+            <td>{{ profile.notes|default:"-" }}</td>
+        </tr>
+    </table>
+
+    <h3>Direct Clearance</h3>
+    {% if profile.clearances %}
+        <p><strong>{{ profile.clearances.name }}</strong></p>
+        <p>{{ profile.clearances.description|default:"" }}</p>
+        <div>
+            {% for label in profile.clearances.securities.all %}
+                <span class="label-badge" style="background-color: {{ label.color }};">
+                    {{ label.short_code }}
+                </span>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No direct clearance assigned.</p>
+    {% endif %}
+
+    <h3>MLS Groups ({{ profile.mls_groups.count }})</h3>
+    {% if profile.mls_groups.all %}
+        <ul>
+            {% for group in profile.mls_groups.all %}
+                <li>
+                    <strong>{{ group.name }}</strong>
+                    {% if group.clearance_template %}
+                        - {{ group.clearance_template.name }}
+                        ({% for label in group.clearance_template.securities.all %}{{ label.short_code }}{% if not forloop.last %}, {% endif %}{% endfor %})
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No MLS groups assigned.</p>
+    {% endif %}
+
+    <h3>DAC Groups ({{ profile.dac_groups.count }})</h3>
+    {% if profile.dac_groups.all %}
+        <ul>
+            {% for group in profile.dac_groups.all %}
+                <li><strong>{{ group.name }}</strong> - {{ group.description|default:"" }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No DAC groups assigned.</p>
+    {% endif %}
+
+    <h3>All Effective Labels</h3>
+    <div>
+        {% for label in all_labels %}
+            <span class="label-badge" style="background-color: {{ label.color }};">
+                {{ label.short_code }} - {{ label.name }}
+            </span>
+        {% empty %}
+            <p>No labels.</p>
+        {% endfor %}
+    </div>
+
+    <h3>All Effective DAC Groups (Including Inherited)</h3>
+    <div>
+        {% for group in all_dac_groups %}
+            <span class="label-badge" style="background-color: #6c757d;">
+                {{ group.name }}
+            </span>
+        {% empty %}
+            <p>No DAC groups.</p>
+        {% endfor %}
+    </div>
+
+    <p style="margin-top: 20px;">
+        <a href="{% url 'mls_core:profile_edit' profile.id %}" class="btn">Edit Profile</a>
+    </p>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Delete Security Label{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Delete Security Label</h2>
+
+    <p><a href="{% url 'mls_core:label_list' %}" class="btn btn-secondary">Back to List</a></p>
+
+    <div class="message warning">
+        <strong>Warning!</strong> Are you sure you want to delete this security label?
+    </div>
+
+    <table>
+        <tr>
+            <th>Short Code</th>
+            <td><span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span></td>
+        </tr>
+        <tr>
+            <th>Name</th>
+            <td>{{ label.name }}</td>
+        </tr>
+        <tr>
+            <th>Type</th>
+            <td>{{ label.get_label_type_display }}</td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td>{{ label.description|default:"-" }}</td>
+        </tr>
+    </table>
+
+    <form method="post" style="margin-top: 20px;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete Label</button>
+        <a href="{% url 'mls_core:label_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
