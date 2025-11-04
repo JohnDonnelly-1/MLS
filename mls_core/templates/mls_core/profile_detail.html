@@ -101,8 +101,9 @@
         {% endfor %}
     </div>
 
-    <p style="margin-top: 20px;">
+    <div style="margin-top: 20px; display: flex; gap: 10px;">
         <a href="{% url 'mls_core:profile_edit' profile.id %}" class="btn">Edit Profile</a>
-    </p>
+        <a href="{% url 'mls_core:profile_delete' profile.id %}" class="btn btn-danger">Delete Profile</a>
+    </div>
 </div>
 {% endblock %}

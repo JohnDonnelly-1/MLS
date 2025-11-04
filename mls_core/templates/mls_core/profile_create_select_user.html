@@ -1,0 +1,41 @@
+{% extends "mls_core/base.html" %}
+
+{% block title %}Create Security Profile - Select User{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Create Security Profile</h2>
+    <p>Select a user to create a security profile for:</p>
+
+    {% if users %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.get_full_name|default:"-" }}</td>
+                    <td>{{ user.email|default:"-" }}</td>
+                    <td>
+                        <a href="{% url 'mls_core:profile_create' user.id %}" class="btn">Create Profile</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>All users already have security profiles.</p>
+    {% endif %}
+
+    <div style="margin-top: 20px;">
+        <a href="{% url 'mls_core:profile_list' %}" class="btn btn-secondary">Back to Profiles</a>
+    </div>
+</div>
+{% endblock %}

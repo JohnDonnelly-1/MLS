@@ -148,6 +148,22 @@ def profile_edit(request, profile_id):
 
 @login_required
 @permission_required('mls_core.security_manager', raise_exception=True)
+def profile_create_select_user(request):
+    """
+    Select a user to create a security profile for.
+    """
+    # Get all users without security profiles
+    users_with_profiles = SecurityProfile.objects.values_list('user_id', flat=True)
+    users_without_profiles = User.objects.exclude(id__in=users_with_profiles).order_by('username')
+
+    context = {
+        'users': users_without_profiles,
+    }
+    return render(request, 'mls_core/profile_create_select_user.html', context)
+
+
+@login_required
+@permission_required('mls_core.security_manager', raise_exception=True)
 def profile_create(request, user_id):
     """
     Create a security profile for an existing Django user.
@@ -189,6 +205,26 @@ def profile_create(request, user_id):
         'all_dac_groups': DACGroup.objects.filter(is_active=True),
     }
     return render(request, 'mls_core/profile_create.html', context)
+
+
+@login_required
+@permission_required('mls_core.security_manager', raise_exception=True)
+def profile_delete(request, profile_id):
+    """
+    Delete a security profile.
+    """
+    profile = get_object_or_404(SecurityProfile, pk=profile_id)
+
+    if request.method == 'POST':
+        username = profile.user.username
+        profile.delete()
+        messages.success(request, f'Security profile for {username} has been deleted.')
+        return redirect('mls_core:profile_list')
+
+    context = {
+        'profile': profile,
+    }
+    return render(request, 'mls_core/profile_delete.html', context)
 
 
 # ==================== Security Label Management ====================

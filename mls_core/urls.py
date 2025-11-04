@@ -15,6 +15,8 @@ urlpatterns = [
     path('profiles/', views.profile_list, name='profile_list'),
     path('profiles/<int:profile_id>/', views.profile_detail, name='profile_detail'),
     path('profiles/<int:profile_id>/edit/', views.profile_edit, name='profile_edit'),
+    path('profiles/<int:profile_id>/delete/', views.profile_delete, name='profile_delete'),
+    path('profiles/create/select-user/', views.profile_create_select_user, name='profile_create_select_user'),
     path('profiles/create/<int:user_id>/', views.profile_create, name='profile_create'),
 
     # Security Labels
