@@ -27,6 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']  # Allow all hosts for Docker deployment
 
+# CSRF trusted origins for production deployment
+CSRF_TRUSTED_ORIGINS = [
+    'https://mls.dev.thedonnelly.net',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
 
 # Application definition
 

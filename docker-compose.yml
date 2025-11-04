@@ -20,7 +20,7 @@ services:
       - /app/.pytest_cache
       - /app/staticfiles
     ports:
-      - "8000:8000"
+      - "8432:8000"
     environment:
       - DEBUG=True
       - REDIS_URL=redis://redis:6379/0
