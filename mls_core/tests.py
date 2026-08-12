@@ -240,8 +240,10 @@ class MLSCoreTestCase(TestCase):
 
     def tearDown(self):
         """Clean up after tests"""
-        TestObjectFieldLevel.objects.all().delete()
-        TestObjectMetaLevel.objects.all().delete()
+        # objects.all() is MLS-filtered and there's no current user in these
+        # tests, so use DANGER to actually reach every row for cleanup.
+        TestObjectFieldLevel.DANGER.all().delete()
+        TestObjectMetaLevel.DANGER.all().delete()
         TestSubject.objects.all().delete()
         Security.objects.all().delete()
         Label.objects.all().delete()
@@ -333,14 +335,9 @@ class FieldLevelMLSTestCase(MLSCoreTestCase):
         accessible = TestObjectFieldLevel.objects.accessible_by(self.user_top_secret)
         self.assertEqual(accessible.count(), 4)
 
-    def test_unfiltered_returns_all(self):
-        """unfiltered() should return all objects regardless of clearance"""
-        all_objects = TestObjectFieldLevel.objects.unfiltered()
-        self.assertEqual(all_objects.count(), 4)
-
-    def test_all_objects_manager_unfiltered(self):
-        """all_objects manager should return unfiltered queryset"""
-        all_objects = TestObjectFieldLevel.all_objects.all()
+    def test_danger_manager_unfiltered(self):
+        """DANGER manager should return unfiltered queryset"""
+        all_objects = TestObjectFieldLevel.DANGER.all()
         self.assertEqual(all_objects.count(), 4)
 
 
@@ -525,12 +522,9 @@ class ManagerMethodsTestCase(MLSCoreTestCase):
             )
 
     def test_all_returns_filtered(self):
-        """objects.all() should use MLS manager"""
-        # Create a queryset (doesn't auto-filter without current user)
+        """objects.all() is secure by default: fails secure (empty) with no current user"""
         all_objs = TestObjectFieldLevel.objects.all()
-        # Should return all since we're not using for_current_user()
-        # The manager exists but needs explicit filtering
-        self.assertIsNotNone(all_objs)
+        self.assertEqual(all_objs.count(), 0)
 
     def test_filter_with_accessible_by(self):
         """Should be able to chain filter() with accessible_by()"""
@@ -538,9 +532,9 @@ class ManagerMethodsTestCase(MLSCoreTestCase):
         filtered = accessible.filter(name__startswith="Document")
         self.assertEqual(filtered.count(), 5)
 
-    def test_unfiltered_then_filter(self):
-        """Should be able to filter on unfiltered queryset"""
-        all_objs = TestObjectFieldLevel.objects.unfiltered()
+    def test_danger_then_filter(self):
+        """Should be able to filter on the DANGER (unfiltered) manager"""
+        all_objs = TestObjectFieldLevel.DANGER.all()
         self.assertEqual(all_objs.count(), 8)
 
         filtered = all_objs.filter(name__startswith="Top")

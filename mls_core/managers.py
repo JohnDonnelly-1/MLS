@@ -77,30 +77,20 @@ class MLSQuerySet(models.QuerySet):
         """
         Filter queryset based on the current user from request context.
 
-        Requires MLSMiddleware to be installed.
+        Requires django-crum's CurrentRequestUserMiddleware to be installed.
 
         Returns:
-            Filtered queryset based on current user's clearances
+            Filtered queryset based on current user's clearances. Fails
+            secure (returns none()) if there's no authenticated current
+            user or no resolvable subject for them.
         """
         user = get_current_user()
-        if user is None or not user.is_authenticated:
+        if not user or not user.is_authenticated:
             return self.none()
 
         # Try to get the subject associated with this user
         subject = self._get_subject_for_user(user)
         return self.accessible_by(subject)
-
-    def unfiltered(self):
-        """
-        Get unfiltered queryset - use with caution!
-
-        This bypasses MLS enforcement and should only be used for
-        system/admin operations.
-
-        Returns:
-            Unfiltered queryset
-        """
-        return self.all()
 
     def _get_subject_clearances(self, subject):
         """Get the Security object from a subject."""
@@ -136,6 +126,10 @@ class MLSQuerySet(models.QuerySet):
         if hasattr(user, 'fakeuser'):
             return user.fakeuser
 
+        # The standard mls_core subject: SecurityProfile (User.security_profile)
+        if hasattr(user, 'security_profile'):
+            return user.security_profile
+
         # Check if user itself is a subject
         if hasattr(user, 'clearances') or hasattr(user, 'accesses'):
             return user
@@ -147,40 +141,47 @@ class MLSManager(models.Manager):
     """
     Manager that automatically enforces MLS access control.
 
-    This replaces the default 'objects' manager to make MLS enforcement
-    the default behavior (secure-by-default).
+    Secure by default: get_queryset() - and therefore .all()/.get()/
+    .filter()/... - is filtered down to whatever the CURRENT REQUEST USER
+    (via django-crum) can access. With no resolvable current user (no
+    request in flight, no crum middleware wired up, management command,
+    shell, etc.) this fails secure and returns nothing.
+
+    For explicit subject filtering, use accessible_by(). For a full bypass,
+    use the sibling DANGER manager (auto-injected next to this one on every
+    MLS-protected model - see MLSModelBase/MLSObject) - never this manager.
     """
 
     def get_queryset(self):
-        """Return MLSQuerySet instead of regular QuerySet."""
-        return MLSQuerySet(self.model, using=self._db)
+        """Filtered by default: only what the current request user can access."""
+        return MLSQuerySet(self.model, using=self._db).for_current_user()
 
     def accessible_by(self, subject):
-        """Proxy to queryset method."""
-        return self.get_queryset().accessible_by(subject)
+        """
+        Explicit subject filtering - bypasses the current-user default so
+        it can be used to check access for a subject other than (or
+        without) the current request user, e.g. from a management command.
+        """
+        return MLSQuerySet(self.model, using=self._db).accessible_by(subject)
 
     def for_current_user(self):
-        """Proxy to queryset method."""
-        return self.get_queryset().for_current_user()
-
-    def unfiltered(self):
-        """
-        Get unfiltered queryset - bypasses MLS enforcement.
-
-        WARNING: Use only for system/admin operations!
-        """
-        return self.get_queryset().unfiltered()
+        """Equivalent to the default queryset; kept for explicit call sites."""
+        return MLSQuerySet(self.model, using=self._db).for_current_user()
 
 
 class UnfilteredMLSManager(models.Manager):
     """
-    Manager that provides unfiltered access.
+    Manager that BYPASSES MLS ENFORCEMENT ENTIRELY - returns every row
+    regardless of classification or current user.
 
-    Use this as a secondary manager when you need explicit unfiltered access:
+    Always exposed as the loudly-named `DANGER` manager, auto-injected by
+    MLSModelBase next to `objects` on every MLS-protected model:
 
-        class SecureModel(MLSObject):
-            objects = MLSManager()  # Default filtered
-            all_objects = UnfilteredMLSManager()  # Explicit unfiltered
+        SecureModel.objects.all()   # safe - filtered to the current user
+        SecureModel.DANGER.all()    # DANGEROUS - unfiltered, every row
+
+    Use only for system/admin operations that have established
+    authorization some other way - never to serve data to an end user.
     """
 
     def get_queryset(self):

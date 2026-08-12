@@ -146,14 +146,12 @@ my_docs = Document.objects.for_current_user()
 
 ### Unfiltered Access (Admin/System Operations)
 
-When you need to bypass MLS (use with caution):
+When you need to bypass MLS (use with caution), use the `DANGER` manager -
+auto-injected next to `objects` on every MLS-protected model, whether it
+uses field-level, Meta-level, or MLSObject-based protection:
 
 ```python
-# Option 1: Use unfiltered() method
-all_docs = Document.objects.unfiltered()
-
-# Option 2: Use all_objects manager
-all_docs = Document.all_objects.all()
+all_docs = Document.DANGER.all()
 ```
 
 ## Checking Access Programmatically
@@ -162,7 +160,7 @@ Check if a subject can access an object:
 
 ```python
 user = User.objects.get(username='alice')
-document = Document.all_objects.get(id=123)
+document = Document.DANGER.get(id=123)
 
 if user.can_access(document):
     # User has access
@@ -281,7 +279,7 @@ Document.objects.accessible_by(user2)  # Returns [doc1, doc2]
 
 1. **Use Field-Level MLS**: Prefer `mls_control=True` on fields for clarity
 2. **Inherit from MLSObject**: Always use `MLSObject` as base for protected models
-3. **Be Explicit with Unfiltered**: Only use `unfiltered()` or `all_objects` when absolutely necessary
+3. **Be Explicit with Unfiltered**: Only use the `DANGER` manager when absolutely necessary
 4. **Test Access Control**: Write tests to verify MLS rules are enforced
 5. **Document Classifications**: Clearly document what security labels mean in your system
 

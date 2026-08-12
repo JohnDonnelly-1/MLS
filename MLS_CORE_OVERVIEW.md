@@ -43,8 +43,8 @@ class Document(MLSObject):
 # Filtered (default)
 docs = Document.objects.all()
 
-# Unfiltered (explicit)
-all_docs = Document.all_objects.all()
+# Unfiltered (explicit, loudly named)
+all_docs = Document.DANGER.all()
 ```
 
 ## Architecture
@@ -182,7 +182,7 @@ def admin_dashboard(request):
     if not request.user.is_staff:
         raise PermissionDenied
 
-    all_docs = Document.all_objects.all()  # Unfiltered
+    all_docs = Document.DANGER.all()  # Unfiltered
     return render(request, 'admin.html', {'documents': all_docs})
 ```
 
@@ -324,8 +324,8 @@ def test_no_bypass():
 
 ### Why Two Managers?
 - `objects` = secure by default
-- `all_objects` = explicit escalation required
-- Clear in code when bypassing security
+- `DANGER` = explicit escalation required
+- Loud, unmistakable name so it's obvious in code review when security is being bypassed
 
 ### Why Abstract Models?
 - Reusable across projects

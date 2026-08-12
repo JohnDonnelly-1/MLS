@@ -134,3 +134,17 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# mls_core's test suite (test_metaclasses.py, tests.py, test_fields.py, ...)
+# defines extra models purely for testing that are never added to a real
+# migration. mls_core otherwise has migrations, so the test database would
+# only get tables for what's in migrations, leaving those test-only models
+# without a table ("no such table" at the first .create()/.save() call).
+# Treating mls_core as unmigrated *only* for test runs makes Django build
+# its test-database tables directly from whatever models are registered
+# (including test-only ones) instead of replaying migration history - which
+# is fine for tests, since they don't care about migration history, only
+# about the resulting schema.
+import sys
+if 'test' in sys.argv or 'pytest' in sys.modules:
+    MIGRATION_MODULES = {'mls_core': None}

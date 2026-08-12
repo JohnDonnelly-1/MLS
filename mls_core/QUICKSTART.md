@@ -88,7 +88,7 @@ docs = Document.objects.accessible_by(user)
 
 ```python
 user = FakeUser.objects.get(name='Alice')
-document = Document.all_objects.get(id=123)  # Unfiltered access
+document = Document.DANGER.get(id=123)  # Unfiltered access
 
 if user.can_access(document):
     # User has all required clearances
@@ -129,14 +129,14 @@ Example:
 Every MLS-protected model automatically gets two managers:
 
 1. **`objects`** - MLS filtered (default, secure)
-2. **`all_objects`** - Unfiltered (for admin use)
+2. **`DANGER`** - Unfiltered (for admin use)
 
 ```python
 # Filtered by current user
 docs = Document.objects.all()
 
 # Unfiltered (admin only)
-all_docs = Document.all_objects.all()
+all_docs = Document.DANGER.all()
 ```
 
 ## Common Patterns
@@ -158,7 +158,7 @@ def admin_view(request):
         return HttpResponseForbidden()
 
     # Unfiltered access
-    all_items = MyModel.all_objects.all()
+    all_items = MyModel.DANGER.all()
     return render(request, 'admin.html', {'items': all_items})
 ```
 
@@ -187,7 +187,7 @@ def user_items(request, user_id):
 **Solutions**:
 1. Check that current user has clearances set
 2. Verify the user's clearances include all required object labels
-3. Use `all_objects` to see unfiltered results
+3. Use `DANGER` to see unfiltered results
 4. Check middleware is installed correctly
 
 ### DoesNotExist errors
@@ -196,7 +196,7 @@ def user_items(request, user_id):
 
 **Reason**: The object exists, but current user doesn't have access
 
-**Solution**: Use `all_objects` for unfiltered access, or check user clearances
+**Solution**: Use `DANGER` for unfiltered access, or check user clearances
 
 ### Field not found
 

@@ -3,7 +3,18 @@ Metaclasses for automatic MLS behavior injection.
 """
 
 from django.db.models.base import ModelBase as DjangoModelBase
-from .managers import MLSManager
+import django.db.models.options as _django_options
+from .managers import MLSManager, UnfilteredMLSManager
+
+# Options.contribute_to_class() raises TypeError for any Meta attribute it
+# doesn't recognize, checking each name against the module-level
+# DEFAULT_NAMES tuple. mls_protected/mls_classification_field must be
+# registered there before any model's `class Meta` using them is
+# processed - i.e. at import time of this module, since every
+# MLS-protected model imports MLSModelBase from here first.
+for _mls_meta_option in ('mls_protected', 'mls_classification_field'):
+    if _mls_meta_option not in _django_options.DEFAULT_NAMES:
+        _django_options.DEFAULT_NAMES = _django_options.DEFAULT_NAMES + (_mls_meta_option,)
 
 
 class MLSModelBase(DjangoModelBase):
@@ -38,5 +49,11 @@ class MLSModelBase(DjangoModelBase):
             if not hasattr(cls, 'objects') or cls.objects.__class__.__name__ == 'Manager':
                 cls.objects = MLSManager()
                 cls.objects.model = cls
+
+            # Always give MLS-protected models the loudly-named DANGER
+            # escape hatch, whether or not they inherit from MLSObject.
+            if not hasattr(cls, 'DANGER'):
+                cls.DANGER = UnfilteredMLSManager()
+                cls.DANGER.model = cls
 
         return cls

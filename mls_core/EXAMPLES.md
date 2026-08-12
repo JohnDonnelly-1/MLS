@@ -55,7 +55,7 @@ class Object(MLSObject):
 
     # Automatically inherits:
     # - objects manager (MLS filtered)
-    # - all_objects manager (unfiltered)
+    # - DANGER manager (unfiltered)
     # - accessible_by() method
 ```
 
@@ -98,13 +98,13 @@ def user_accessible_objects(request, user_pk):
         context={'user': user, 'objects': accessible_objs}
     )
 
-def admin_all_objects(request):
+def admin_danger_view(request):
     """Admin view - see ALL objects regardless of clearance"""
     if not request.user.is_staff:
         return HttpResponseForbidden()
 
     # Explicit unfiltered access
-    all_objs = Object.all_objects.all()
+    all_objs = Object.DANGER.all()
 
     return TemplateResponse(
         request,
@@ -147,7 +147,7 @@ files = FileSystem.objects.for_current_user()
 
 # Check if user can access a specific file
 user = FakeUser.objects.get(name='Alice')
-file = FileSystem.all_objects.get(name='secret.txt')
+file = FileSystem.DANGER.get(name='secret.txt')
 if user.can_access(file):
     print(file.content)
 ```
@@ -381,5 +381,5 @@ class MLSAccessTestCase(TestCase):
 1. **Start Small**: Migrate one model at a time
 2. **Test Thoroughly**: Write tests before and after migration
 3. **Update Views Gradually**: Start with `for_current_user()` then optimize
-4. **Keep Unfiltered Access**: Use `all_objects` for admin views
+4. **Keep Unfiltered Access**: Use `DANGER` for admin views
 5. **Document Changes**: Note which models have MLS protection enabled

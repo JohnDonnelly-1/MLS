@@ -483,8 +483,8 @@ class MLSObject(models.Model, metaclass=MLSModelBase):
             classification = models.ForeignKey(SecurityClearance, mls_control=True, ...)
     """
 
-    objects = MLSManager()
-    all_objects = UnfilteredMLSManager()
+    objects = MLSManager()  # Secure by default - filtered to the current user's clearance
+    DANGER = UnfilteredMLSManager()  # Bypasses MLS entirely - system/admin use only
 
     class Meta:
         abstract = True
