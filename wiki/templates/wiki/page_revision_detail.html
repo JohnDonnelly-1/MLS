@@ -1,0 +1,37 @@
+{% extends "wiki/base.html" %}
+
+{% block title %}v{{ revision.version }} &middot; {{ page.title }}{% endblock %}
+
+{% block content %}
+<div class="wiki-breadcrumbs">
+    <a href="{% url 'wiki:space_detail' space.key %}">{{ space.icon }} {{ space.name }}</a>
+    &raquo; <a href="{{ page.get_absolute_url }}">{{ page.title }}</a>
+    &raquo; <a href="{% url 'wiki:page_history' space.key page.slug %}">History</a>
+    &raquo; v{{ revision.version }}
+</div>
+
+<div class="wiki-page-card">
+    <div class="wiki-page-header">
+        <div>
+            <h1 class="wiki-page-title">{{ revision.title }} <span class="wiki-muted">(v{{ revision.version }})</span></h1>
+            <span class="wiki-marking-badge" style="background-color: {{ revision.classification.securities.all.0.color|default:'#6c757d' }};">
+                {{ revision.get_classification_marking|default:"UNCLASSIFIED" }}
+            </span>
+        </div>
+        {% if revision.version != page.current_version %}
+        <form method="post" action="{% url 'wiki:page_restore' space.key page.slug revision.version %}"
+              onsubmit="return confirm('Restore v{{ revision.version }} as the new current version?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-sm">Restore this version</button>
+        </form>
+        {% endif %}
+    </div>
+    <div class="wiki-page-byline">
+        Edited by {{ revision.edited_by.username }} on {{ revision.edited_at|date:"N j, Y, g:i A" }}
+        {% if revision.change_note %} &mdash; {{ revision.change_note }}{% endif %}
+    </div>
+    <div class="wiki-content-body">
+        {{ revision.content_html|safe }}
+    </div>
+</div>
+{% endblock %}

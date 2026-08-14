@@ -1,0 +1,26 @@
+{% extends "wiki/base.html" %}
+
+{% block title %}Compare v{{ from_rev.version }} &rarr; v{{ to_rev.version }} &middot; {{ page.title }}{% endblock %}
+
+{% block content %}
+<div class="wiki-breadcrumbs">
+    <a href="{% url 'wiki:space_detail' space.key %}">{{ space.icon }} {{ space.name }}</a>
+    &raquo; <a href="{{ page.get_absolute_url }}">{{ page.title }}</a>
+    &raquo; <a href="{% url 'wiki:page_history' space.key page.slug %}">History</a>
+    &raquo; Compare
+</div>
+
+<h1 class="wiki-page-title">v{{ from_rev.version }} &rarr; v{{ to_rev.version }}</h1>
+
+{% if title_changed %}
+<p><strong>Title:</strong> <del>{{ from_rev.title }}</del> &rarr; <ins>{{ to_rev.title }}</ins></p>
+{% endif %}
+{% if classification_changed %}
+<p><strong>Classification:</strong>
+    <del>{{ from_rev.get_classification_marking|default:"UNCLASSIFIED" }}</del> &rarr;
+    <ins>{{ to_rev.get_classification_marking|default:"UNCLASSIFIED" }}</ins>
+</p>
+{% endif %}
+
+<div class="wiki-diff">{{ diff_html|safe }}</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "wiki/base.html" %}
+
+{% block title %}Search{% endblock %}
+
+{% block sidebar %}
+<div class="wiki-sidebar-section">
+    <div class="wiki-sidebar-heading">Spaces</div>
+    <ul class="wiki-space-switcher">
+        <li><a href="{% url 'wiki:space_list' %}">All spaces&hellip;</a></li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<h1 class="wiki-page-title">Search results for &ldquo;{{ query }}&rdquo;</h1>
+
+{% if not query %}
+    <p class="wiki-muted">Enter a search term above.</p>
+{% elif not results %}
+    <p class="wiki-muted">No accessible pages matched &ldquo;{{ query }}&rdquo;.</p>
+{% else %}
+    <ul class="wiki-revision-list">
+        {% for page in results %}
+            <li class="wiki-revision-row">
+                <span class="wiki-marking-badge" style="background-color: {{ page.get_classification_level.color|default:'#6c757d' }};">
+                    {{ page.get_classification_marking|default:"UNCLASSIFIED" }}
+                </span>
+                <span class="wiki-revision-meta">
+                    <a href="{{ page.get_absolute_url }}">{{ page.title }}</a> &middot; {{ page.space.name }}
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endblock %}

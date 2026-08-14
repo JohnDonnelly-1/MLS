@@ -42,7 +42,8 @@ RUN pip install --no-cache-dir \
     Pillow \
     Twisted \
     "Django>=4.2" \
-    djlint
+    djlint \
+    bleach
 
 # Copy project files
 COPY . .

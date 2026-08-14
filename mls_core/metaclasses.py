@@ -36,10 +36,16 @@ class MLSModelBase(DjangoModelBase):
         # Check if MLS protection is enabled via Meta
         mls_protected = getattr(cls._meta, 'mls_protected', False)
 
-        # Check if any fields have mls_control=True
+        # Check if any fields have mls_control=True. cls._meta.fields (forward
+        # fields only, no M2M) rather than get_fields() - mls_control is only
+        # ever set on a forward FK/O2O field, and get_fields()'s reverse-field
+        # scan forces Options._relation_tree to run, which walks every model
+        # in the app registry and raises AppRegistryNotReady if called while
+        # models are still being imported - exactly what's happening right
+        # here, at class-definition time for any model using this metaclass.
         has_mls_field = any(
             hasattr(field, 'mls_control') and field.mls_control
-            for field in cls._meta.get_fields()
+            for field in cls._meta.fields
             if hasattr(field, 'mls_control')
         )
 

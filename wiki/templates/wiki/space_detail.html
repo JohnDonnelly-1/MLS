@@ -1,0 +1,23 @@
+{% extends "wiki/base.html" %}
+
+{% block title %}{{ space.name }}{% endblock %}
+
+{% block content %}
+<div class="wiki-page-header">
+    <div>
+        <h1 class="wiki-page-title">{{ space.icon }} {{ space.name }}</h1>
+        <p class="wiki-muted">{{ space.description }}</p>
+    </div>
+    <a href="{% url 'wiki:page_create' space.key %}" class="btn btn-primary">+ New page</a>
+</div>
+
+{% if tree %}
+<ul class="wiki-tree" style="font-size: 15px;">
+    {% for node in tree %}
+        {% include "wiki/_tree_node.html" with node=node current=None %}
+    {% endfor %}
+</ul>
+{% else %}
+<p class="wiki-muted">No pages in this space yet.</p>
+{% endif %}
+{% endblock %}

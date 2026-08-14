@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'mls_core',
     'main.apps.MainConfig',
     'abac.apps.AbacConfig',
+    'wiki.apps.WikiConfig',
 ]
 
 MIDDLEWARE = [
@@ -130,6 +131,15 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# MEDIA_ROOT holds uploaded files (wiki attachments). Deliberately NOT served
+# at MEDIA_URL via Django's static() helper in urls.py - attachments carry
+# their own MLS classification, so they must only ever be reachable through
+# wiki's attachment_download view, which checks accessible_by() before
+# streaming any bytes. A public MEDIA_URL mapping would let anyone with a
+# guessed/leaked path fetch a classified file with zero access control.
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
@@ -145,6 +155,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # (including test-only ones) instead of replaying migration history - which
 # is fine for tests, since they don't care about migration history, only
 # about the resulting schema.
+#
+# wiki has to be listed here too: its migration legitimately depends on
+# mls_core's ('wiki', '0001_initial') -> ('mls_core', '0001_initial'), and
+# once mls_core is excluded from the graph that dependency dangles and
+# breaks migration-graph resolution for every test, not just wiki's own.
+# Any future app with a real migration dependency on mls_core needs adding
+# here for the same reason.
 import sys
 if 'test' in sys.argv or 'pytest' in sys.modules:
-    MIGRATION_MODULES = {'mls_core': None}
+    MIGRATION_MODULES = {'mls_core': None, 'wiki': None}

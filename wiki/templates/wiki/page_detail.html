@@ -1,0 +1,95 @@
+{% extends "wiki/base.html" %}
+{% load static %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+<div class="wiki-breadcrumbs">
+    <a href="{% url 'wiki:space_detail' space.key %}">{{ space.icon }} {{ space.name }}</a>
+    {% if page.parent %} &raquo; <a href="{{ page.parent.get_absolute_url }}">{{ page.parent.title }}</a>{% endif %}
+    &raquo; {{ page.title }}
+</div>
+
+<div class="wiki-page-card">
+    <div class="wiki-page-header">
+        <div>
+            <h1 class="wiki-page-title">{{ page.title }}</h1>
+            <span class="wiki-marking-badge" style="background-color: {{ page.get_classification_level.color|default:'#6c757d' }};">
+                {{ page.get_classification_marking|default:"UNCLASSIFIED" }}
+            </span>
+        </div>
+        <div class="wiki-page-actions">
+            <a href="{% url 'wiki:page_create' space.key %}?parent={{ page.pk }}" class="btn btn-secondary btn-sm">+ Child page</a>
+            <a href="{% url 'wiki:page_history' space.key page.slug %}" class="btn btn-secondary btn-sm">History (v{{ page.current_version }})</a>
+            <a href="{% url 'wiki:page_edit' space.key page.slug %}" class="btn btn-primary btn-sm">Edit</a>
+        </div>
+    </div>
+    <div class="wiki-page-byline">
+        Last edited by {{ page.updated_by.username }} on {{ page.updated_at|date:"N j, Y, g:i A" }}
+    </div>
+
+    <div class="wiki-content-body">
+        {{ page.content_html|safe }}
+    </div>
+
+    {% if children %}
+    <div class="wiki-children">
+        <h3>Child pages</h3>
+        <ul>
+            {% for child in children %}
+                <li><a href="{{ child.get_absolute_url }}">{{ child.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <h3 class="wiki-section-title">
+        Attachments
+        <a href="#" id="attach-toggle" class="wiki-add-link" title="Attach a file">+</a>
+    </h3>
+    <ul class="wiki-attachments-list">
+        {% for att in attachments %}
+            <li class="wiki-attachment-row">
+                <span class="wiki-marking-badge" style="background-color: {{ att.classification.securities.all.0.color|default:'#6c757d' }};">
+                    {{ att.get_classification_marking|default:"UNCLASSIFIED" }}
+                </span>
+                <span class="wiki-attachment-name">
+                    <a href="{% url 'wiki:attachment_download' att.pk %}">{{ att.filename }}</a>
+                    <span class="wiki-attachment-meta">{{ att.human_size }} &middot; uploaded by {{ att.uploaded_by.username }} on {{ att.uploaded_at|date:"N j, Y" }}</span>
+                </span>
+                <form method="post" action="{% url 'wiki:attachment_delete' att.pk %}" onsubmit="return confirm('Delete {{ att.filename }}?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </li>
+        {% empty %}
+            <li class="wiki-muted">No attachments.</li>
+        {% endfor %}
+    </ul>
+
+    <div class="attach-panel" id="attach-panel">
+        <form method="post" action="{% url 'wiki:attachment_upload' space.key page.slug %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="wiki-form-row">
+                <label for="id_file">File</label>
+                <input type="file" name="file" id="id_file" required>
+            </div>
+            {% include "wiki/_classification_picker.html" with levels=attach_levels categories=attach_categories existing_label_ids=None picker_id="attach" %}
+            <div class="wiki-form-actions">
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </div>
+        </form>
+    </div>
+
+    <form method="post" action="{% url 'wiki:page_delete' space.key page.slug %}"
+          onsubmit="return confirm('Delete \'{{ page.title }}\' permanently? This cannot be undone.');"
+          style="margin-top: 32px;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger btn-sm">Delete this page</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'wiki/js/editor.js' %}"></script>
+{% endblock %}

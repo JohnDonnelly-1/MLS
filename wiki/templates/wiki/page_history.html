@@ -1,0 +1,38 @@
+{% extends "wiki/base.html" %}
+
+{% block title %}History &middot; {{ page.title }}{% endblock %}
+
+{% block content %}
+<div class="wiki-breadcrumbs">
+    <a href="{% url 'wiki:space_detail' space.key %}">{{ space.icon }} {{ space.name }}</a>
+    &raquo; <a href="{{ page.get_absolute_url }}">{{ page.title }}</a>
+    &raquo; History
+</div>
+
+<h1 class="wiki-page-title">Version history</h1>
+
+<ul class="wiki-revision-list">
+    {% for revision in revisions %}
+        <li class="wiki-revision-row">
+            <span class="wiki-revision-version">v{{ revision.version }}</span>
+            <span class="wiki-marking-badge" style="background-color: {{ revision.classification.securities.all.0.color|default:'#6c757d' }};">
+                {{ revision.get_classification_marking|default:"UNCLASSIFIED" }}
+            </span>
+            <span class="wiki-revision-meta">
+                {{ revision.edited_by.username }} &middot; {{ revision.edited_at|date:"N j, Y, g:i A" }}
+                {% if revision.change_note %} &mdash; {{ revision.change_note }}{% endif %}
+                {% if revision.version == page.current_version %} &mdash; <strong>current</strong>{% endif %}
+            </span>
+            <a href="{% url 'wiki:page_revision_detail' space.key page.slug revision.version %}" class="btn btn-secondary btn-sm">View</a>
+            {% if revision.version != page.current_version %}
+                <a href="{% url 'wiki:page_diff' space.key page.slug revision.version page.current_version %}" class="btn btn-secondary btn-sm">Compare to current</a>
+                <form method="post" action="{% url 'wiki:page_restore' space.key page.slug revision.version %}"
+                      onsubmit="return confirm('Restore v{{ revision.version }} as the new current version?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary btn-sm">Restore</button>
+                </form>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

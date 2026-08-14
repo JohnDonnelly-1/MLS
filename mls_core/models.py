@@ -491,7 +491,10 @@ class MLSObject(models.Model, metaclass=MLSModelBase):
 
     def _get_classification(self):
         """Get the Security object containing this object's classification."""
-        for field in self._meta.get_fields():
+        # self._meta.fields (forward-only): mls_control only ever appears on
+        # a forward FK/O2O field (see metaclasses.py for why get_fields()'s
+        # reverse-field scan is avoided here too).
+        for field in self._meta.fields:
             if hasattr(field, 'mls_control') and field.mls_control:
                 return getattr(self, field.name, None)
 

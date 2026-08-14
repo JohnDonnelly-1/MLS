@@ -1,0 +1,39 @@
+{# Reusable classification picker. Include with: levels, categories, existing_label_ids (set, optional), picker_id (unique string) #}
+<div class="classify-picker" id="classify-{{ picker_id }}">
+    <div class="classify-preview" id="classify-preview-{{ picker_id }}">UNCLASSIFIED</div>
+
+    {% if not levels %}
+        <p class="wiki-muted">
+            Your account has no security clearance assigned, so there's nothing you're allowed to
+            classify content as. Ask an administrator to grant you a clearance at
+            <a href="/mls/profiles/">Security Profiles</a>.
+        </p>
+    {% else %}
+    <div class="classify-columns">
+        <div class="classify-column">
+            <div class="classify-heading">Classification Level</div>
+            {% for level in levels %}
+                <label class="classify-option">
+                    <input type="radio" name="label_ids" value="{{ level.id }}" class="classify-input" data-picker="{{ picker_id }}"
+                        {% if level.id in existing_label_ids %}checked{% elif forloop.first and not existing_label_ids %}checked{% endif %}>
+                    <span class="classify-dot" style="background-color: {{ level.color }};"></span>
+                    {{ level.short_code }} &mdash; {{ level.name }}
+                </label>
+            {% endfor %}
+        </div>
+        <div class="classify-column">
+            <div class="classify-heading">Categories (optional)</div>
+            {% for category in categories %}
+                <label class="classify-option">
+                    <input type="checkbox" name="label_ids" value="{{ category.id }}" class="classify-input" data-picker="{{ picker_id }}"
+                        {% if category.id in existing_label_ids %}checked{% endif %}>
+                    <span class="classify-dot" style="background-color: {{ category.color }};"></span>
+                    {{ category.short_code }} &mdash; {{ category.name }}
+                </label>
+            {% empty %}
+                <div class="wiki-muted">No categories you're cleared for.</div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>

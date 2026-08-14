@@ -1,0 +1,37 @@
+{% extends "wiki/base.html" %}
+
+{% block title %}New space{% endblock %}
+
+{% block sidebar %}
+<div class="wiki-sidebar-section">
+    <div class="wiki-sidebar-heading">Spaces</div>
+</div>
+{% endblock %}
+
+{% block content %}
+<h1 class="wiki-page-title">New space</h1>
+
+<form method="post" style="max-width: 480px;">
+    {% csrf_token %}
+    <div class="wiki-form-row">
+        <label for="id_name">Name</label>
+        <input type="text" name="name" id="id_name" required>
+    </div>
+    <div class="wiki-form-row">
+        <label for="id_key">Key (short code used in URLs, e.g. ENG)</label>
+        <input type="text" name="key" id="id_key" maxlength="20" required>
+    </div>
+    <div class="wiki-form-row">
+        <label for="id_icon">Icon (optional emoji)</label>
+        <input type="text" name="icon" id="id_icon" maxlength="8">
+    </div>
+    <div class="wiki-form-row">
+        <label for="id_description">Description</label>
+        <input type="text" name="description" id="id_description">
+    </div>
+    <div class="wiki-form-actions">
+        <button type="submit" class="btn btn-primary">Create space</button>
+        <a href="{% url 'wiki:space_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

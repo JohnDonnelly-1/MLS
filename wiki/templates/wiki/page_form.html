@@ -1,0 +1,56 @@
+{% extends "wiki/base.html" %}
+{% load static %}
+
+{% block title %}{% if is_new %}New page{% else %}Edit {{ page.title }}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="wiki-breadcrumbs">
+    <a href="{% url 'wiki:space_detail' space.key %}">{{ space.icon }} {{ space.name }}</a>
+    {% if parent %} &raquo; <a href="{{ parent.get_absolute_url }}">{{ parent.title }}</a>{% endif %}
+    {% if page %} &raquo; <a href="{{ page.get_absolute_url }}">{{ page.title }}</a>{% endif %}
+    &raquo; {% if is_new %}New page{% else %}Edit{% endif %}
+</div>
+
+<form method="post" id="page-form" class="wiki-page-form">
+    {% csrf_token %}
+    {% if parent %}<input type="hidden" name="parent" value="{{ parent.pk }}">{% endif %}
+
+    <input type="text" name="title" id="id_title" class="wiki-title-input" placeholder="Page title"
+           value="{{ page.title|default:'' }}" required autofocus>
+
+    {% if is_new %}
+        <div class="wiki-slug-row">
+            <label for="id_slug">URL slug</label>
+            <input type="text" name="slug" id="id_slug" value="" placeholder="auto-generated from title">
+        </div>
+    {% endif %}
+
+    <div class="wiki-editor-toolbar" id="editor-toolbar"></div>
+    <div id="editor" class="wiki-editor">{{ page.content_html|default:""|safe }}</div>
+    <textarea name="content_html" id="id_content_html" style="display:none;"></textarea>
+
+    <h3 class="wiki-section-title">Classification</h3>
+    {% include "wiki/_classification_picker.html" with levels=levels categories=categories existing_label_ids=existing_label_ids picker_id="page" %}
+
+    {% if not is_new %}
+    <div class="wiki-form-row">
+        <label for="id_change_note">Change note (optional)</label>
+        <input type="text" name="change_note" id="id_change_note" placeholder="What did you change?">
+    </div>
+    {% endif %}
+
+    <div class="wiki-form-actions">
+        <button type="submit" class="btn btn-primary">{% if is_new %}Create page{% else %}Save changes{% endif %}</button>
+        <a href="{% if page %}{{ page.get_absolute_url }}{% else %}{% url 'wiki:space_detail' space.key %}{% endif %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+<script src="{% static 'wiki/js/editor.js' %}"></script>
+{% endblock %}

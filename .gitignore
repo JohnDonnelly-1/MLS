@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# User-uploaded wiki attachments - runtime data, not repo content
+media/

@@ -1,0 +1,10 @@
+{% load static %}<li class="wiki-tree-node{% if current and node.page.pk == current.pk %} active{% endif %}">
+    <a href="{% url 'wiki:page_detail' node.page.space.key node.page.slug %}">{{ node.page.title }}</a>
+    {% if node.children %}
+        <ul class="wiki-tree">
+            {% for child in node.children %}
+                {% include "wiki/_tree_node.html" with node=child current=current %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+</li>

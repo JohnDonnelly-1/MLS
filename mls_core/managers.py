@@ -102,7 +102,10 @@ class MLSQuerySet(models.QuerySet):
 
     def _get_mls_control_field(self):
         """Find the field marked with mls_control=True."""
-        for field in self.model._meta.get_fields():
+        # cls._meta.fields (forward-only): mls_control only ever appears on a
+        # forward FK/O2O field (see metaclasses.py for why get_fields()'s
+        # reverse-field scan is avoided here too).
+        for field in self.model._meta.fields:
             if hasattr(field, 'mls_control') and field.mls_control:
                 return field
 

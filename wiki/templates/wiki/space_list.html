@@ -1,0 +1,30 @@
+{% extends "wiki/base.html" %}
+
+{% block title %}Spaces{% endblock %}
+
+{% block sidebar %}
+<div class="wiki-sidebar-section">
+    <div class="wiki-sidebar-heading">Spaces</div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wiki-page-header">
+    <h1 class="wiki-page-title">Spaces</h1>
+    <a href="{% url 'wiki:space_create' %}" class="btn btn-primary">+ New space</a>
+</div>
+
+{% if no_spaces %}
+    <p class="wiki-muted">No spaces yet &mdash; create the first one to get started.</p>
+{% endif %}
+
+<div class="wiki-space-grid">
+    {% for space in spaces %}
+        <div class="wiki-space-card">
+            <h3><a href="{{ space.get_absolute_url }}">{{ space.icon }} {{ space.name }}</a></h3>
+            <p>{{ space.description|default:"No description." }}</p>
+            <span class="wiki-muted">{{ space.pages.count }} page{{ space.pages.count|pluralize }}</span>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
