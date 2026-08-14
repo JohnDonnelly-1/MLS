@@ -193,16 +193,20 @@ tr:last-child td { border-bottom: none; }
 }
 .label-badge-list { display: flex; flex-wrap: wrap; gap: 0; }
 
-/* Vertical multi-column badge layout (flows top-to-bottom per column,
-   then across) - used where a horizontal-wrap list reads as one long row */
+/* Vertical multi-column badge layout: fills each column top-to-bottom, up
+   to 10 items, before wrapping to a new column - CSS `columns` won't do
+   this (it auto-balances column heights instead of respecting a fixed
+   per-column count), so this is a grid with a fixed 10-row template and
+   grid-auto-flow: column, which places items down each column first. */
 .label-badge-columns {
-    columns: 3 200px;
-    column-gap: 16px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(10, auto);
+    grid-auto-columns: max-content;
+    gap: 4px 16px;
 }
 .label-badge-columns .label-badge {
-    display: block;
     width: fit-content;
-    break-inside: avoid;
 }
 
 /* ---- Grouped label sections (Levels vs Categories) ---- */

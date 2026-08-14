@@ -319,8 +319,9 @@
                                    data-code="{{ level.short_code }}"
                                    data-name="{{ level.name }}"
                                    data-color="{{ level.color }}"
+                                   data-text-color="{{ level.text_color }}"
                                    {% if existing_level == level.id %}checked{% endif %}>
-                            <span class="label-badge" style="background-color: {{ level.color }};">{{ level.short_code }}</span>
+                            <span class="label-badge" style="background-color: {{ level.color }}; color: {{ level.text_color }};">{{ level.short_code }}</span>
                             {{ level.name }}
                         </label>
                         {% endfor %}
@@ -338,9 +339,10 @@
                                data-code="{{ label.short_code }}"
                                data-name="{{ label.name }}"
                                data-color="{{ label.color }}"
+                               data-text-color="{{ label.text_color }}"
                                data-type="sci"
                                {% if label.id in existing_labels %}checked{% endif %}>
-                        <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
+                        <span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }}</span>
                         {{ label.name }}
                     </label>
                     {% endfor %}
@@ -358,9 +360,10 @@
                                data-code="{{ label.short_code }}"
                                data-name="{{ label.name }}"
                                data-color="{{ label.color }}"
+                               data-text-color="{{ label.text_color }}"
                                data-type="sap"
                                {% if label.id in existing_labels %}checked{% endif %}>
-                        <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
+                        <span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }}</span>
                         {{ label.name }}
                     </label>
                     {% endfor %}
@@ -378,9 +381,10 @@
                                data-code="{{ label.short_code }}"
                                data-name="{{ label.name }}"
                                data-color="{{ label.color }}"
+                               data-text-color="{{ label.text_color }}"
                                data-type="diss"
                                {% if label.id in existing_labels %}checked{% endif %}>
-                        <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
+                        <span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }}</span>
                         {{ label.name }}
                     </label>
                     {% endfor %}
@@ -400,6 +404,7 @@
                                         data-code="{{ label.short_code }}"
                                         data-name="{{ label.name }}"
                                         data-color="{{ label.color }}"
+                                        data-text-color="{{ label.text_color }}"
                                         {% if existing_labels and label.id in existing_labels %}data-preselect="1"{% elif not existing_labels and label.short_code == 'USA' %}data-preselect="1"{% endif %}>
                                     {{ label.short_code }} &mdash; {{ label.name }}
                                 </option>
@@ -524,13 +529,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const code = levelRadio.dataset.code;
             const name = levelRadio.dataset.name;
             const color = levelRadio.dataset.color;
+            const textColor = levelRadio.dataset.textColor;
 
             markingParts.push(code);
             selectedIds.push(levelRadio.value);
 
             appliedLevel.innerHTML = `
                 <div class="applied-level">
-                    <span class="label-badge" style="background-color: ${color};">${code}</span>
+                    <span class="label-badge" style="background-color: ${color}; color: ${textColor};">${code}</span>
                     ${name}
                 </div>
             `;
@@ -548,6 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const code = checkbox.dataset.code;
                 const name = checkbox.dataset.name;
                 const color = checkbox.dataset.color;
+                const textColor = checkbox.dataset.textColor;
                 const type = checkbox.dataset.type;
 
                 selectedIds.push(checkbox.value);
@@ -556,6 +563,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     code: code,
                     name: name,
                     color: color,
+                    textColor: textColor,
                     value: checkbox.value,
                     checkbox: checkbox
                 };
@@ -575,7 +583,7 @@ document.addEventListener('DOMContentLoaded', function() {
             appliedSCI.innerHTML = sciItems.map(item => `
                 <div class="applied-item">
                     <div>
-                        <span class="label-badge" style="background-color: ${item.color};">${item.code}</span>
+                        <span class="label-badge" style="background-color: ${item.color}; color: ${item.textColor};">${item.code}</span>
                         ${item.name}
                     </div>
                     <button type="button" class="remove-btn" data-value="${item.value}">Remove</button>
@@ -591,7 +599,7 @@ document.addEventListener('DOMContentLoaded', function() {
             appliedSAP.innerHTML = sapItems.map(item => `
                 <div class="applied-item">
                     <div>
-                        <span class="label-badge" style="background-color: ${item.color};">${item.code}</span>
+                        <span class="label-badge" style="background-color: ${item.color}; color: ${item.textColor};">${item.code}</span>
                         ${item.name}
                     </div>
                     <button type="button" class="remove-btn" data-value="${item.value}">Remove</button>
@@ -607,7 +615,7 @@ document.addEventListener('DOMContentLoaded', function() {
             appliedDiss.innerHTML = dissItems.map(item => `
                 <div class="applied-item">
                     <div>
-                        <span class="label-badge" style="background-color: ${item.color};">${item.code}</span>
+                        <span class="label-badge" style="background-color: ${item.color}; color: ${item.textColor};">${item.code}</span>
                         ${item.name}
                     </div>
                     <button type="button" class="remove-btn" data-value="${item.value}">Remove</button>
@@ -621,7 +629,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update Releasability section (from the shuttle's "selected" list)
         if (relSelected) {
             const relItems = Array.from(relSelected.options).map(o => ({
-                code: o.dataset.code, name: o.dataset.name, color: o.dataset.color, value: o.value
+                code: o.dataset.code, name: o.dataset.name, color: o.dataset.color,
+                textColor: o.dataset.textColor, value: o.value
             }));
             selectedIds.push(...relItems.map(i => i.value));
 
@@ -629,7 +638,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 appliedRel.innerHTML = relItems.map(item => `
                     <div class="applied-item">
                         <div>
-                            <span class="label-badge" style="background-color: ${item.color};">${item.code}</span>
+                            <span class="label-badge" style="background-color: ${item.color}; color: ${item.textColor};">${item.code}</span>
                             ${item.name}
                         </div>
                     </div>

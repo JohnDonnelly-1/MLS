@@ -84,6 +84,39 @@ class SecurityLabel(models.Model):
     def __str__(self):
         return f"{self.short_code} - {self.name}"
 
+    @property
+    def text_color(self):
+        """
+        '#000000' or '#FFFFFF', whichever gives better contrast against this
+        label's badge background color - so badge text stays readable
+        regardless of how dark or light `color` is set to.
+
+        Uses the WCAG 2.0 relative luminance definition
+        (https://www.w3.org/TR/WCAG20/#relativeluminancedef): each sRGB
+        channel is gamma-expanded to linear light, then luminance is the
+        weighted sum L = 0.2126*R + 0.7152*G + 0.0722*B. WCAG's contrast
+        ratio between two luminances is (lighter+0.05)/(darker+0.05); the
+        luminance at which contrast-against-white equals contrast-against-
+        black works out to L = 0.05*(sqrt(21) - 1) ~= 0.179 - below that,
+        white text has the higher (better) contrast ratio, at or above it
+        black does.
+        """
+        return '#FFFFFF' if _relative_luminance(self.color) < 0.179 else '#000000'
+
+
+def _relative_luminance(hex_color):
+    """WCAG relative luminance (0.0-1.0) of a '#rrggbb' color string."""
+    hex_color = (hex_color or '').lstrip('#')
+    if len(hex_color) != 6:
+        return 1.0  # malformed color - fail toward black text, the safer default on an unknown/light background
+
+    def linearize(channel):
+        c = int(hex_color[channel:channel + 2], 16) / 255
+        return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+
+    r, g, b = linearize(0), linearize(2), linearize(4)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
 
 # ==================== Security Clearances ====================
 

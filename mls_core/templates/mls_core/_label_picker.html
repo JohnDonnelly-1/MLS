@@ -8,7 +8,7 @@
             <label class="picker-option">
                 <input type="checkbox" name="{{ field_name|default:"securities" }}" value="{{ label.id }}"
                     {% if label.id in checked_ids %}checked{% endif %}>
-                <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
+                <span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }}</span>
                 {{ label.name }}
             </label>
         {% empty %}
@@ -21,7 +21,7 @@
             <label class="picker-option">
                 <input type="checkbox" name="{{ field_name|default:"securities" }}" value="{{ label.id }}"
                     {% if label.id in checked_ids %}checked{% endif %}>
-                <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
+                <span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }}</span>
                 {{ label.name }}
             </label>
         {% empty %}
@@ -35,7 +35,7 @@
             <label class="picker-option">
                 <input type="checkbox" name="{{ field_name|default:"securities" }}" value="{{ label.id }}"
                     {% if label.id in checked_ids %}checked{% endif %}>
-                <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
+                <span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }}</span>
                 {{ label.name }}
             </label>
         {% empty %}

@@ -18,7 +18,7 @@
         <div class="label-type-group-title">Levels</div>
         <div class="label-badge-columns">
             {% for label in all_labels %}{% if label.label_type == 'LVL' %}
-                <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }} &mdash; {{ label.name }}</span>
+                <span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }} &mdash; {{ label.name }}</span>
             {% endif %}{% endfor %}
         </div>
     </div>
@@ -26,7 +26,7 @@
         <div class="label-type-group-title">Categories</div>
         <div class="label-badge-columns">
             {% for label in all_labels %}{% if label.label_type == 'CAT' %}
-                <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }} &mdash; {{ label.name }}</span>
+                <span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }} &mdash; {{ label.name }}</span>
             {% endif %}{% endfor %}
         </div>
     </div>
@@ -34,7 +34,7 @@
         <div class="label-type-group-title">Releasability</div>
         <div class="label-badge-columns">
             {% for label in all_labels %}{% if label.label_type == 'REL' %}
-                <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }} &mdash; {{ label.name }}</span>
+                <span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }} &mdash; {{ label.name }}</span>
             {% endif %}{% endfor %}
         </div>
     </div>
@@ -67,7 +67,7 @@
         <p><strong>{{ profile.clearances.name }}</strong> {% if profile.clearances.description %}&mdash; {{ profile.clearances.description }}{% endif %}</p>
         <div class="label-badge-columns">
             {% for label in profile.clearances.securities.all %}
-                <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
+                <span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }}</span>
             {% endfor %}
         </div>
     {% else %}

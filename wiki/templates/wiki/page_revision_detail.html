@@ -14,7 +14,7 @@
     <div class="wiki-page-header">
         <div>
             <h1 class="wiki-page-title">{{ revision.title }} <span class="wiki-muted">(v{{ revision.version }})</span></h1>
-            <span class="wiki-marking-badge" style="background-color: {{ revision.classification.securities.all.0.color|default:'#6c757d' }};">
+            <span class="wiki-marking-badge" style="background-color: {{ revision.classification.securities.all.0.color|default:'#6c757d' }}; color: {{ revision.classification.securities.all.0.text_color|default:'#FFFFFF' }};">
                 {{ revision.get_classification_marking|default:"UNCLASSIFIED" }}
             </span>
         </div>

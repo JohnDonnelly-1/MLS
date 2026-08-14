@@ -27,7 +27,7 @@
         <tbody>
             {% for label in level_labels %}
             <tr>
-                <td><span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span></td>
+                <td><span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }}</span></td>
                 <td>{{ label.name }}</td>
                 <td>{{ label.rank }}</td>
                 <td>{{ label.description|truncatewords:10 }}</td>
@@ -54,7 +54,7 @@
         <tbody>
             {% for label in category_labels %}
             <tr>
-                <td><span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span></td>
+                <td><span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }}</span></td>
                 <td>{{ label.name }}</td>
                 <td>{{ label.description|truncatewords:10 }}</td>
                 <td class="table-actions">
@@ -80,7 +80,7 @@
         <tbody>
             {% for label in releasability_labels %}
             <tr>
-                <td><span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span></td>
+                <td><span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }}</span></td>
                 <td>{{ label.name }}</td>
                 <td>{{ label.description|truncatewords:10 }}</td>
                 <td class="table-actions">

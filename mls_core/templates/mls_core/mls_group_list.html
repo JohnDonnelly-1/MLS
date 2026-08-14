@@ -22,7 +22,7 @@
             {% if group.description %}<p class="entity-card-desc">{{ group.description|truncatewords:14 }}</p>{% endif %}
             <div class="label-badge-list">
                 {% for label in group.clearance_template.securities.all %}
-                    <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
+                    <span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }}</span>
                 {% empty %}
                     <span class="mls-user">No clearance template labels</span>
                 {% endfor %}

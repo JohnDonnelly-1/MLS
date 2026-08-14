@@ -14,7 +14,7 @@
     <div class="wiki-page-header">
         <div>
             <h1 class="wiki-page-title">{{ page.title }}</h1>
-            <span class="wiki-marking-badge" style="background-color: {{ page.get_classification_level.color|default:'#6c757d' }};">
+            <span class="wiki-marking-badge" style="background-color: {{ page.get_classification_level.color|default:'#6c757d' }}; color: {{ page.get_classification_level.text_color|default:'#FFFFFF' }};">
                 {{ page.get_classification_marking|default:"UNCLASSIFIED" }}
             </span>
         </div>
@@ -50,7 +50,7 @@
     <ul class="wiki-attachments-list">
         {% for att in attachments %}
             <li class="wiki-attachment-row">
-                <span class="wiki-marking-badge" style="background-color: {{ att.classification.securities.all.0.color|default:'#6c757d' }};">
+                <span class="wiki-marking-badge" style="background-color: {{ att.classification.securities.all.0.color|default:'#6c757d' }}; color: {{ att.classification.securities.all.0.text_color|default:'#FFFFFF' }};">
                     {{ att.get_classification_marking|default:"UNCLASSIFIED" }}
                 </span>
                 <span class="wiki-attachment-name">

@@ -9,7 +9,7 @@
 </head>
 <body>
     {% if page and page.get_classification_marking %}
-    <div class="classification-banner classification-banner-top" style="background-color: {{ page.get_classification_level.color|default:'#6c757d' }};">
+    <div class="classification-banner classification-banner-top" style="background-color: {{ page.get_classification_level.color|default:'#6c757d' }}; color: {{ page.get_classification_level.text_color|default:'#FFFFFF' }};">
         {{ page.get_classification_marking|default:"UNCLASSIFIED" }}
     </div>
     {% endif %}
@@ -74,7 +74,7 @@
     </div>
 
     {% if page and page.get_classification_marking %}
-    <div class="classification-banner classification-banner-bottom" style="background-color: {{ page.get_classification_level.color|default:'#6c757d' }};">
+    <div class="classification-banner classification-banner-bottom" style="background-color: {{ page.get_classification_level.color|default:'#6c757d' }}; color: {{ page.get_classification_level.text_color|default:'#FFFFFF' }};">
         {{ page.get_classification_marking|default:"UNCLASSIFIED" }}
     </div>
     {% endif %}

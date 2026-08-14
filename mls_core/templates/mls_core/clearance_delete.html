@@ -25,7 +25,7 @@
             <th>Security Labels</th>
             <td>
                 {% for label in clearance.securities.all %}
-                    <span class="label-badge" style="background-color: {{ label.color }};">
+                    <span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">
                         {{ label.short_code }}
                     </span>
                 {% empty %}

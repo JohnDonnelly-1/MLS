@@ -15,7 +15,7 @@
     {% for revision in revisions %}
         <li class="wiki-revision-row">
             <span class="wiki-revision-version">v{{ revision.version }}</span>
-            <span class="wiki-marking-badge" style="background-color: {{ revision.classification.securities.all.0.color|default:'#6c757d' }};">
+            <span class="wiki-marking-badge" style="background-color: {{ revision.classification.securities.all.0.color|default:'#6c757d' }}; color: {{ revision.classification.securities.all.0.text_color|default:'#FFFFFF' }};">
                 {{ revision.get_classification_marking|default:"UNCLASSIFIED" }}
             </span>
             <span class="wiki-revision-meta">

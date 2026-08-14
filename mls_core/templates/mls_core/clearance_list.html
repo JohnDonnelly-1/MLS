@@ -18,7 +18,7 @@
             {% if clearance.description %}<p class="entity-card-desc">{{ clearance.description|truncatewords:14 }}</p>{% endif %}
             <div class="label-badge-list">
                 {% for label in clearance.securities.all %}
-                    <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
+                    <span class="label-badge" style="background-color: {{ label.color }}; color: {{ label.text_color }};">{{ label.short_code }}</span>
                 {% empty %}
                     <span class="mls-user">No labels assigned</span>
                 {% endfor %}

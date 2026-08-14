@@ -22,7 +22,7 @@
     <ul class="wiki-revision-list">
         {% for page in results %}
             <li class="wiki-revision-row">
-                <span class="wiki-marking-badge" style="background-color: {{ page.get_classification_level.color|default:'#6c757d' }};">
+                <span class="wiki-marking-badge" style="background-color: {{ page.get_classification_level.color|default:'#6c757d' }}; color: {{ page.get_classification_level.text_color|default:'#FFFFFF' }};">
                     {{ page.get_classification_marking|default:"UNCLASSIFIED" }}
                 </span>
                 <span class="wiki-revision-meta">
