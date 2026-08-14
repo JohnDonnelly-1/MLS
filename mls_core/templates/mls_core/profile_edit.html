@@ -3,21 +3,25 @@
 {% block title %}Edit Security Profile: {{ profile.user.username }}{% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1>Edit Profile: {{ profile.user.username }}</h1>
+    <a href="{% url 'mls_core:profile_detail' profile.id %}" class="btn btn-secondary btn-sm">Back to Profile</a>
+</div>
+
 <div class="card">
-    <h2>Edit Security Profile: {{ profile.user.username }}</h2>
-
-    <p><a href="{% url 'mls_core:profile_detail' profile.id %}" class="btn btn-secondary">Back to Profile</a></p>
-
     <form method="post">
         {% csrf_token %}
 
+        <div class="section-heading">Status</div>
         <div class="form-group">
             <label for="is_active">
                 <input type="checkbox" id="is_active" name="is_active" {% if profile.is_active %}checked{% endif %}>
                 Profile Active
             </label>
+            <small>Inactive profiles cannot access anything, regardless of clearance.</small>
         </div>
 
+        <div class="section-heading">Clearance</div>
         <div class="form-group">
             <label for="clearances">Direct Clearance</label>
             <select id="clearances" name="clearances">
@@ -29,46 +33,56 @@
                 {% endfor %}
             </select>
         </div>
-
         <div class="form-group">
             <label for="clearance_expires">Clearance Expiration Date</label>
             <input type="date" id="clearance_expires" name="clearance_expires"
                    value="{{ profile.clearance_expires|date:'Y-m-d'|default:'' }}">
         </div>
 
+        <div class="section-heading">Groups</div>
         <div class="form-group">
-            <label>MLS Groups (AND logic - user gets ALL labels from ALL groups)</label>
-            {% for group in all_mls_groups %}
-                <div>
-                    <label>
+            <label>MLS Groups <small style="display:inline;">(AND logic &mdash; ALL labels from ALL selected groups)</small></label>
+            {% if all_mls_groups %}
+            <div class="picker-grid">
+                {% for group in all_mls_groups %}
+                    <label class="picker-option">
                         <input type="checkbox" name="mls_groups" value="{{ group.id }}"
                                {% if group in profile.mls_groups.all %}checked{% endif %}>
-                        {{ group.name }} - {{ group.clearance_template.name }}
+                        {{ group.name }}
                     </label>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
+            {% else %}
+                <p class="mls-user">No MLS groups defined.</p>
+            {% endif %}
         </div>
 
         <div class="form-group">
-            <label>DAC Groups (OR logic - user needs ANY matching group)</label>
-            {% for group in all_dac_groups %}
-                <div>
-                    <label>
+            <label>DAC Groups <small style="display:inline;">(OR logic &mdash; ANY matching group)</small></label>
+            {% if all_dac_groups %}
+            <div class="picker-grid">
+                {% for group in all_dac_groups %}
+                    <label class="picker-option">
                         <input type="checkbox" name="dac_groups" value="{{ group.id }}"
                                {% if group in profile.dac_groups.all %}checked{% endif %}>
                         {{ group.name }}
                     </label>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
+            {% else %}
+                <p class="mls-user">No DAC groups defined.</p>
+            {% endif %}
         </div>
 
+        <div class="section-heading">Notes</div>
         <div class="form-group">
-            <label for="notes">Notes</label>
-            <textarea id="notes" name="notes" rows="4">{{ profile.notes }}</textarea>
+            <textarea name="notes" rows="4">{{ profile.notes }}</textarea>
         </div>
 
-        <button type="submit" class="btn">Save Changes</button>
-        <a href="{% url 'mls_core:profile_detail' profile.id %}" class="btn btn-secondary">Cancel</a>
+        <div class="btn-group">
+            <button type="submit" class="btn">Save Changes</button>
+            <a href="{% url 'mls_core:profile_detail' profile.id %}" class="btn btn-secondary">Cancel</a>
+        </div>
     </form>
 </div>
 {% endblock %}

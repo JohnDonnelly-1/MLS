@@ -3,22 +3,22 @@
 {% block title %}Security Profiles{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="margin: 0;">Security Profiles</h2>
-        <a href="{% url 'mls_core:profile_create_select_user' %}" class="btn" style="background-color: #28a745;">Create New Profile</a>
+<div class="page-header">
+    <h1>Security Profiles</h1>
+    <a href="{% url 'mls_core:profile_create_select_user' %}" class="btn btn-success">+ Create Profile</a>
+</div>
+
+<form method="get" class="form-group" style="max-width: 340px;">
+    <label for="q">Search</label>
+    <div style="display: flex; gap: 8px;">
+        <input type="text" id="q" name="q" placeholder="Username or name..." value="{{ query|default:'' }}">
+        <button type="submit" class="btn btn-secondary btn-sm">Search</button>
+        {% if query %}<a href="{% url 'mls_core:profile_list' %}" class="btn btn-secondary btn-sm">Clear</a>{% endif %}
     </div>
+</form>
 
-    <form method="get" style="margin-bottom: 20px;">
-        <div class="form-group">
-            <input type="text" name="q" placeholder="Search by username or name..." value="{{ query|default:'' }}" style="width: 300px;">
-            <button type="submit" class="btn">Search</button>
-            {% if query %}
-                <a href="{% url 'mls_core:profile_list' %}" class="btn btn-secondary">Clear</a>
-            {% endif %}
-        </div>
-    </form>
-
+<div class="card">
+{% if profiles %}
     <table>
         <thead>
             <tr>
@@ -28,7 +28,7 @@
                 <th>Direct Clearance</th>
                 <th>MLS Groups</th>
                 <th>DAC Groups</th>
-                <th>Actions</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -40,18 +40,17 @@
                 <td>{{ profile.clearances.name|default:"-" }}</td>
                 <td>{{ profile.mls_groups.count }}</td>
                 <td>{{ profile.dac_groups.count }}</td>
-                <td>
-                    <a href="{% url 'mls_core:profile_detail' profile.id %}">View</a> |
-                    <a href="{% url 'mls_core:profile_edit' profile.id %}">Edit</a> |
-                    <a href="{% url 'mls_core:profile_delete' profile.id %}" style="color: #dc3545;">Delete</a>
+                <td class="table-actions">
+                    <a href="{% url 'mls_core:profile_detail' profile.id %}">View</a>
+                    <a href="{% url 'mls_core:profile_edit' profile.id %}">Edit</a>
+                    <a href="{% url 'mls_core:profile_delete' profile.id %}" class="danger">Delete</a>
                 </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="7">No security profiles found.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+{% else %}
+    <div class="empty-state">No security profiles found.</div>
+{% endif %}
 </div>
 {% endblock %}

@@ -3,11 +3,12 @@
 {% block title %}Create Security Profile{% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1>Create Profile for {{ user.username }}</h1>
+    <a href="{% url 'mls_core:profile_list' %}" class="btn btn-secondary btn-sm">Back to List</a>
+</div>
+
 <div class="card">
-    <h2>Create Security Profile for: {{ user.username }}</h2>
-
-    <p><a href="{% url 'mls_core:profile_list' %}" class="btn btn-secondary">Back to List</a></p>
-
     <form method="post">
         {% csrf_token %}
 
@@ -23,26 +24,34 @@
 
         <div class="form-group">
             <label>MLS Groups</label>
-            {% for group in all_mls_groups %}
-                <div>
-                    <label>
+            {% if all_mls_groups %}
+            <div class="picker-grid">
+                {% for group in all_mls_groups %}
+                    <label class="picker-option">
                         <input type="checkbox" name="mls_groups" value="{{ group.id }}">
-                        {{ group.name }} - {{ group.clearance_template.name }}
+                        {{ group.name }} &mdash; {{ group.clearance_template.name }}
                     </label>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
+            {% else %}
+                <p class="mls-user">No MLS groups defined.</p>
+            {% endif %}
         </div>
 
         <div class="form-group">
             <label>DAC Groups</label>
-            {% for group in all_dac_groups %}
-                <div>
-                    <label>
+            {% if all_dac_groups %}
+            <div class="picker-grid">
+                {% for group in all_dac_groups %}
+                    <label class="picker-option">
                         <input type="checkbox" name="dac_groups" value="{{ group.id }}">
                         {{ group.name }}
                     </label>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
+            {% else %}
+                <p class="mls-user">No DAC groups defined.</p>
+            {% endif %}
         </div>
 
         <div class="form-group">
@@ -50,8 +59,10 @@
             <textarea id="notes" name="notes" rows="4"></textarea>
         </div>
 
-        <button type="submit" class="btn">Create Profile</button>
-        <a href="{% url 'mls_core:profile_list' %}" class="btn btn-secondary">Cancel</a>
+        <div class="btn-group">
+            <button type="submit" class="btn">Create Profile</button>
+            <a href="{% url 'mls_core:profile_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
     </form>
 </div>
 {% endblock %}

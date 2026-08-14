@@ -10,6 +10,7 @@ app_name = 'mls_core'
 urlpatterns = [
     # Dashboard
     path('', views.dashboard, name='dashboard'),
+    path('setup-sample-labels/', views.setup_sample_labels, name='setup_sample_labels'),
 
     # Security Profiles
     path('profiles/', views.profile_list, name='profile_list'),

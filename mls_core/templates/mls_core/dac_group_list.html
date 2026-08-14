@@ -3,49 +3,36 @@
 {% block title %}DAC Groups{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>DAC Groups (OR Logic)</h2>
-
-    <p>
-        <a href="{% url 'mls_core:dac_group_create' %}" class="btn">Create New DAC Group</a>
-    </p>
-
-    <p><em>Users need ANY matching group to access objects (discretionary access control).</em></p>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Active</th>
-                <th>Parent Groups</th>
-                <th>Description</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for group in groups %}
-            <tr>
-                <td><strong>{{ group.name }}</strong></td>
-                <td>{{ group.is_active|yesno:"✓,✗" }}</td>
-                <td>
-                    {% for parent in group.parent_groups.all %}
-                        {{ parent.name }}{% if not forloop.last %}, {% endif %}
-                    {% empty %}
-                        -
-                    {% endfor %}
-                </td>
-                <td>{{ group.description|truncatewords:10 }}</td>
-                <td>
-                    <a href="{% url 'mls_core:dac_group_edit' group.id %}">Edit</a> |
-                    <a href="{% url 'mls_core:dac_group_delete' group.id %}">Delete</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5">No DAC groups found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="page-header">
+    <h1>DAC Groups</h1>
+    <a href="{% url 'mls_core:dac_group_create' %}" class="btn">+ Create DAC Group</a>
 </div>
+<p class="mls-user">OR logic &mdash; a user needs ANY matching DAC group (discretionary access control).</p>
+
+{% if groups %}
+<div class="entity-grid">
+    {% for group in groups %}
+        <div class="entity-card">
+            <div class="entity-card-header">
+                <span class="entity-card-title">
+                    {{ group.name }}
+                    {% if not group.is_active %}<span class="inactive">&middot; inactive</span>{% endif %}
+                </span>
+            </div>
+            {% if group.description %}<p class="entity-card-desc">{{ group.description|truncatewords:14 }}</p>{% endif %}
+            {% if group.parent_groups.exists %}
+            <div class="entity-card-meta">
+                Inherits from: {% for parent in group.parent_groups.all %}{{ parent.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            <div class="entity-card-actions">
+                <a href="{% url 'mls_core:dac_group_edit' group.id %}">Edit</a>
+                <a href="{% url 'mls_core:dac_group_delete' group.id %}" class="danger">Delete</a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% else %}
+    <div class="empty-state">No DAC groups found.</div>
+{% endif %}
 {% endblock %}

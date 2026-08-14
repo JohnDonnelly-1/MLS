@@ -1,0 +1,239 @@
+:root {
+    --mls-accent: #1F3A5F;
+    --mls-accent-light: #E6ECF3;
+    --mls-bg: #F4F5F7;
+    --mls-sidebar-bg: #FAFBFC;
+    --mls-border: #DFE1E6;
+    --mls-text: #172B4D;
+    --mls-muted: #6B778C;
+    --mls-danger: #C0392B;
+    --mls-success: #1E7E4F;
+    --mls-warning: #8A6100;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--mls-bg);
+    color: var(--mls-text);
+    padding-top: 38px;
+    padding-bottom: 38px;
+}
+
+a { color: var(--mls-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ---- Classification demo banners ---- */
+.demo-banner {
+    position: fixed;
+    left: 0;
+    right: 0;
+    background-color: #00CED1;
+    color: #000;
+    text-align: center;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 9px 0;
+    z-index: 9999;
+    letter-spacing: 2px;
+}
+.demo-banner-top { top: 0; }
+.demo-banner-bottom { bottom: 0; }
+
+/* ---- Top bar ---- */
+.mls-topbar {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    height: 52px;
+    padding: 0 20px;
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--mls-border);
+}
+.mls-brand {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--mls-text);
+    white-space: nowrap;
+}
+.mls-brand:hover { text-decoration: none; }
+.mls-topbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 14px;
+}
+.mls-user { color: var(--mls-muted); }
+
+/* ---- Layout ---- */
+.mls-body {
+    display: flex;
+    align-items: flex-start;
+    min-height: calc(100vh - 76px);
+}
+.mls-sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--mls-sidebar-bg);
+    border-right: 1px solid var(--mls-border);
+    padding: 18px 8px;
+    min-height: calc(100vh - 76px);
+}
+.mls-content {
+    flex: 1;
+    padding: 28px 36px;
+    max-width: 1100px;
+}
+
+/* ---- Sidebar nav ---- */
+.mls-nav-section { margin-bottom: 22px; }
+.mls-nav-heading {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--mls-muted);
+    padding: 0 12px;
+    margin-bottom: 6px;
+}
+.mls-nav-section ul { list-style: none; margin: 0; padding: 0; }
+.mls-nav-section a {
+    display: block;
+    padding: 7px 12px;
+    border-radius: 4px;
+    color: var(--mls-text);
+    font-size: 14px;
+}
+.mls-nav-section a:hover { background: var(--mls-accent-light); text-decoration: none; }
+.mls-nav-section a.active { background: var(--mls-accent-light); color: var(--mls-accent); font-weight: 600; }
+.mls-nav-section a.mls-nav-tool { color: var(--mls-success); }
+
+/* ---- Messages ---- */
+.messages { margin-bottom: 18px; }
+.message { padding: 10px 14px; border-radius: 4px; margin-bottom: 8px; font-size: 14px; }
+.message.success { background: #E3FCEF; color: var(--mls-success); }
+.message.error { background: #FDEBE8; color: var(--mls-danger); }
+.message.warning { background: #FFF6E0; color: var(--mls-warning); }
+
+/* ---- Cards / page furniture ---- */
+.card {
+    background: #fff;
+    border: 1px solid var(--mls-border);
+    border-radius: 6px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+.card h2 { margin-top: 0; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+.page-header h1, .page-header h2 { margin: 0; }
+.section-heading {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--mls-muted);
+    border-bottom: 1px solid var(--mls-border);
+    padding-bottom: 6px;
+    margin: 24px 0 12px;
+}
+.section-heading:first-child { margin-top: 0; }
+
+/* ---- Buttons ---- */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--mls-accent);
+    color: #fff;
+}
+.btn:hover { text-decoration: none; opacity: 0.9; }
+.btn-secondary { background: #fff; color: var(--mls-text); border-color: var(--mls-border); }
+.btn-danger { background: var(--mls-danger); }
+.btn-success { background: var(--mls-success); }
+.btn-sm { padding: 5px 11px; font-size: 13px; }
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ---- Tables (kept for genuinely tabular data, e.g. profile lists) ---- */
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 11px 12px; text-align: left; border-bottom: 1px solid var(--mls-border); font-size: 14px; }
+th { background: var(--mls-bg); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--mls-muted); }
+tr:last-child td { border-bottom: none; }
+.table-actions { display: flex; gap: 10px; }
+.table-actions a.danger { color: var(--mls-danger); }
+
+/* ---- Card grid (clearances / MLS groups / DAC groups) ---- */
+.entity-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.entity-card { background: #fff; border: 1px solid var(--mls-border); border-radius: 6px; padding: 16px; }
+.entity-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+.entity-card-title { font-weight: 700; font-size: 15px; }
+.entity-card-title .inactive { color: var(--mls-muted); font-weight: 400; font-size: 12px; }
+.entity-card-desc { color: var(--mls-muted); font-size: 13px; margin: 4px 0 10px; }
+.entity-card-meta { font-size: 12px; color: var(--mls-muted); margin-bottom: 10px; }
+.entity-card-actions { display: flex; gap: 12px; font-size: 13px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--mls-border); }
+.entity-card-actions a.danger { color: var(--mls-danger); }
+.empty-state { color: var(--mls-muted); padding: 24px; text-align: center; border: 1px dashed var(--mls-border); border-radius: 6px; }
+
+/* ---- Label badges ---- */
+.label-badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 3px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #172B4D;
+}
+.label-badge-list { display: flex; flex-wrap: wrap; gap: 0; }
+
+/* ---- Grouped label sections (Levels vs Categories) ---- */
+.label-type-group { margin-bottom: 22px; }
+.label-type-group:last-child { margin-bottom: 0; }
+.label-type-group-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--mls-muted); margin-bottom: 8px; }
+
+/* ---- Stat tiles (dashboard) ---- */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.stat-tile { background: #fff; border: 1px solid var(--mls-border); border-radius: 6px; padding: 16px; text-align: center; }
+.stat-tile-value { font-size: 26px; font-weight: 700; color: var(--mls-accent); }
+.stat-tile-label { font-size: 12px; color: var(--mls-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 4px; }
+
+/* ---- Forms ---- */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+.form-group small { display: block; color: var(--mls-muted); font-size: 12px; margin-top: 4px; }
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="date"],
+.form-group input[type="search"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--mls-border);
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+.form-group input[type="checkbox"] { margin-right: 6px; }
+
+/* Checkbox/chip pickers - replaces bare vertical {% for %} stacks */
+.picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 4px 16px;
+    border: 1px solid var(--mls-border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    background: #fff;
+}
+.picker-columns { display: flex; gap: 24px; }
+.picker-column { flex: 1; }
+.picker-column-heading { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--mls-muted); margin-bottom: 8px; }
+.picker-option { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 14px; cursor: pointer; font-weight: 400; }

@@ -3,47 +3,34 @@
 {% block title %}Security Clearances{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>Security Clearances</h2>
-
-    <p>
-        <a href="{% url 'mls_core:clearance_create' %}" class="btn">Create New Clearance</a>
-    </p>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Security Labels</th>
-                <th>Description</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for clearance in clearances %}
-            <tr>
-                <td><strong>{{ clearance.name }}</strong></td>
-                <td>
-                    {% for label in clearance.securities.all %}
-                        <span class="label-badge" style="background-color: {{ label.color }};">
-                            {{ label.short_code }}
-                        </span>
-                    {% empty %}
-                        -
-                    {% endfor %}
-                </td>
-                <td>{{ clearance.description|truncatewords:10 }}</td>
-                <td>
-                    <a href="{% url 'mls_core:clearance_edit' clearance.id %}">Edit</a> |
-                    <a href="{% url 'mls_core:clearance_delete' clearance.id %}">Delete</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4">No security clearances found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="page-header">
+    <h1>Security Clearances</h1>
+    <a href="{% url 'mls_core:clearance_create' %}" class="btn">+ Create Clearance</a>
 </div>
+
+{% if clearances %}
+<div class="entity-grid">
+    {% for clearance in clearances %}
+        <div class="entity-card">
+            <div class="entity-card-header">
+                <span class="entity-card-title">{{ clearance.name }}</span>
+            </div>
+            {% if clearance.description %}<p class="entity-card-desc">{{ clearance.description|truncatewords:14 }}</p>{% endif %}
+            <div class="label-badge-list">
+                {% for label in clearance.securities.all %}
+                    <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
+                {% empty %}
+                    <span class="mls-user">No labels assigned</span>
+                {% endfor %}
+            </div>
+            <div class="entity-card-actions">
+                <a href="{% url 'mls_core:clearance_edit' clearance.id %}">Edit</a>
+                <a href="{% url 'mls_core:clearance_delete' clearance.id %}" class="danger">Delete</a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% else %}
+    <div class="empty-state">No security clearances found.</div>
+{% endif %}
 {% endblock %}

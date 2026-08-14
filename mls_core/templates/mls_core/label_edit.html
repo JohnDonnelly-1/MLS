@@ -3,11 +3,12 @@
 {% block title %}Edit Security Label{% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1>Edit Label: {{ label.name }}</h1>
+    <a href="{% url 'mls_core:label_list' %}" class="btn btn-secondary btn-sm">Back to List</a>
+</div>
+
 <div class="card">
-    <h2>Edit Security Label: {{ label.name }}</h2>
-
-    <p><a href="{% url 'mls_core:label_list' %}" class="btn btn-secondary">Back to List</a></p>
-
     <form method="post">
         {% csrf_token %}
 
@@ -45,8 +46,10 @@
             <textarea id="description" name="description" rows="3">{{ label.description }}</textarea>
         </div>
 
-        <button type="submit" class="btn">Save Changes</button>
-        <a href="{% url 'mls_core:label_list' %}" class="btn btn-secondary">Cancel</a>
+        <div class="btn-group">
+            <button type="submit" class="btn">Save Changes</button>
+            <a href="{% url 'mls_core:label_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
     </form>
 </div>
 {% endblock %}

@@ -6,12 +6,14 @@ Permissions required:
 - senior_security_manager: Can CRUD labels, groups, and manage all security objects
 """
 
+from django.core.management import call_command
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Q, Count
 from django.http import HttpResponseForbidden
+from django.views.decorators.http import require_POST
 
 from .models import (
     SecurityLabel,
@@ -38,6 +40,16 @@ def dashboard(request):
         'user_profile': getattr(request.user, 'security_profile', None),
     }
     return render(request, 'mls_core/dashboard.html', context)
+
+
+@login_required
+@permission_required('mls_core.senior_security_manager', raise_exception=True)
+@require_POST
+def setup_sample_labels(request):
+    """Seed the demo security labels (idempotent - get_or_create under the hood)."""
+    call_command('setup_sample_labels')
+    messages.success(request, 'Sample security labels created (or already existed).')
+    return redirect('mls_core:dashboard')
 
 
 # ==================== Security Profile Management ====================
@@ -243,7 +255,8 @@ def label_list(request):
         labels = labels.filter(label_type=label_type)
 
     context = {
-        'labels': labels,
+        'level_labels': labels.filter(label_type=SecurityLabel.LabelType.LEVEL).order_by('rank'),
+        'category_labels': labels.filter(label_type=SecurityLabel.LabelType.CATEGORY).order_by('short_code'),
         'label_types': SecurityLabel.LabelType.choices,
         'selected_type': label_type,
     }
@@ -505,7 +518,8 @@ def clearance_create(request):
         return redirect('mls_core:clearance_list')
 
     context = {
-        'labels': SecurityLabel.objects.all(),
+        'level_labels': SecurityLabel.objects.filter(label_type=SecurityLabel.LabelType.LEVEL).order_by('rank'),
+        'category_labels': SecurityLabel.objects.filter(label_type=SecurityLabel.LabelType.CATEGORY).order_by('short_code'),
     }
     return render(request, 'mls_core/clearance_create.html', context)
 
@@ -530,7 +544,9 @@ def clearance_edit(request, clearance_id):
 
     context = {
         'clearance': clearance,
-        'labels': SecurityLabel.objects.all(),
+        'level_labels': SecurityLabel.objects.filter(label_type=SecurityLabel.LabelType.LEVEL).order_by('rank'),
+        'category_labels': SecurityLabel.objects.filter(label_type=SecurityLabel.LabelType.CATEGORY).order_by('short_code'),
+        'checked_ids': set(clearance.securities.values_list('id', flat=True)),
     }
     return render(request, 'mls_core/clearance_edit.html', context)
 

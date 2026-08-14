@@ -3,11 +3,12 @@
 {% block title %}Edit Security Clearance{% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1>Edit Clearance: {{ clearance.name }}</h1>
+    <a href="{% url 'mls_core:clearance_list' %}" class="btn btn-secondary btn-sm">Back to List</a>
+</div>
+
 <div class="card">
-    <h2>Edit Security Clearance: {{ clearance.name }}</h2>
-
-    <p><a href="{% url 'mls_core:clearance_list' %}" class="btn btn-secondary">Back to List</a></p>
-
     <form method="post">
         {% csrf_token %}
 
@@ -23,25 +24,18 @@
 
         <div class="form-group">
             <label>Security Labels *</label>
-            <p><em>Select all labels included in this clearance.</em></p>
-            {% for label in labels %}
-                <div>
-                    <label>
-                        <input type="checkbox" name="securities" value="{{ label.id }}"
-                               {% if label in clearance.securities.all %}checked{% endif %}>
-                        <span class="label-badge" style="background-color: {{ label.color }};">
-                            {{ label.short_code }}
-                        </span>
-                        {{ label.name }} ({{ label.get_label_type_display }})
-                    </label>
-                </div>
-            {% empty %}
+            <small style="margin-bottom: 8px;">Select all labels included in this clearance.</small>
+            {% if not level_labels and not category_labels %}
                 <p class="message warning">No security labels available. Please create labels first.</p>
-            {% endfor %}
+            {% else %}
+                {% include "mls_core/_label_picker.html" %}
+            {% endif %}
         </div>
 
-        <button type="submit" class="btn">Save Changes</button>
-        <a href="{% url 'mls_core:clearance_list' %}" class="btn btn-secondary">Cancel</a>
+        <div class="btn-group">
+            <button type="submit" class="btn">Save Changes</button>
+            <a href="{% url 'mls_core:clearance_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
     </form>
 </div>
 {% endblock %}
