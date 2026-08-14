@@ -101,17 +101,30 @@
         .section-header.sci { border-left-color: #800080; }
         .section-header.sap { border-left-color: #8B4513; }
         .section-header.diss { border-left-color: #28a745; }
-        .level-dropdown {
-            width: 100%;
-            padding: 5px;
-            font-size: 12px;
+        .section-header.rel { border-left-color: #1B7F79; }
+        .level-radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .level-radio-option {
+            display: flex;
+            align-items: center;
+            padding: 5px 8px;
             border: 1px solid #ddd;
             border-radius: 3px;
             cursor: pointer;
+            background-color: white;
+            font-size: 12px;
+            transition: all 0.1s;
         }
-        .level-dropdown:focus {
-            outline: none;
+        .level-radio-option:hover {
+            background-color: #e7f3ff;
             border-color: #007bff;
+        }
+        .level-radio-option input[type="radio"] {
+            margin-right: 6px;
+            cursor: pointer;
         }
         .choice-item {
             display: flex;
@@ -218,6 +231,50 @@
             padding-bottom: 4px;
             border-bottom: 2px solid #007bff;
         }
+        /* Releasability shuttle (dual list) */
+        .shuttle {
+            display: flex;
+            align-items: stretch;
+            gap: 6px;
+        }
+        .shuttle-list {
+            flex: 1;
+            min-width: 0;
+        }
+        .shuttle-list-label {
+            font-size: 10px;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+        }
+        .shuttle select {
+            width: 100%;
+            height: 130px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 12px;
+            padding: 2px;
+        }
+        .shuttle-buttons {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+        }
+        .shuttle-buttons button {
+            width: 30px;
+            padding: 4px 0;
+            font-size: 12px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: white;
+            cursor: pointer;
+        }
+        .shuttle-buttons button:hover {
+            background-color: #e7f3ff;
+            border-color: #007bff;
+        }
         @media (max-width: 900px) {
             .modal-body {
                 flex-direction: column;
@@ -251,21 +308,23 @@
             <div class="selector-column">
                 <div class="column-title">Available Markings</div>
 
-                <!-- Classification Level Dropdown -->
+                <!-- Classification Level (radio buttons) -->
                 <div class="section">
                     <div class="section-header">Classification Level *</div>
-                    <select id="levelSelect" class="level-dropdown" required>
-                        <option value="">-- Select Level --</option>
+                    <div class="level-radio-group" id="levelRadioGroup">
                         {% for level in levels %}
-                        <option value="{{ level.id }}"
-                                data-code="{{ level.short_code }}"
-                                data-name="{{ level.name }}"
-                                data-color="{{ level.color }}"
-                                {% if existing_level == level.id %}selected{% endif %}>
-                            {{ level.short_code }} - {{ level.name }}
-                        </option>
+                        <label class="level-radio-option">
+                            <input type="radio" name="level" class="level-radio"
+                                   value="{{ level.id }}"
+                                   data-code="{{ level.short_code }}"
+                                   data-name="{{ level.name }}"
+                                   data-color="{{ level.color }}"
+                                   {% if existing_level == level.id %}checked{% endif %}>
+                            <span class="label-badge" style="background-color: {{ level.color }};">{{ level.short_code }}</span>
+                            {{ level.name }}
+                        </label>
                         {% endfor %}
-                    </select>
+                    </div>
                 </div>
 
                 <!-- SCI Caveats -->
@@ -327,6 +386,39 @@
                     {% endfor %}
                 </div>
                 {% endif %}
+
+                <!-- Releasability (countries) - dual-list shuttle -->
+                {% if releasability %}
+                <div class="section">
+                    <div class="section-header rel">Releasability (Countries)</div>
+                    <div class="shuttle">
+                        <div class="shuttle-list">
+                            <div class="shuttle-list-label">Available</div>
+                            <select id="relAvailable" multiple size="8">
+                                {% for label in releasability %}
+                                <option value="{{ label.id }}"
+                                        data-code="{{ label.short_code }}"
+                                        data-name="{{ label.name }}"
+                                        data-color="{{ label.color }}"
+                                        {% if existing_labels and label.id in existing_labels %}data-preselect="1"{% elif not existing_labels and label.short_code == 'USA' %}data-preselect="1"{% endif %}>
+                                    {{ label.short_code }} &mdash; {{ label.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="shuttle-buttons">
+                            <button type="button" id="relAddAll" title="Add all">&raquo;</button>
+                            <button type="button" id="relAdd" title="Add selected">&rarr;</button>
+                            <button type="button" id="relRemove" title="Remove selected">&larr;</button>
+                            <button type="button" id="relRemoveAll" title="Remove all">&laquo;</button>
+                        </div>
+                        <div class="shuttle-list">
+                            <div class="shuttle-list-label">Releasable To</div>
+                            <select id="relSelected" multiple size="8"></select>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
 
             <!-- Right Column: Applied -->
@@ -356,6 +448,14 @@
                     <div class="section-header diss">Dissemination</div>
                     <div id="appliedDiss" class="empty-state">None selected</div>
                 </div>
+
+                <!-- Applied Releasability -->
+                {% if releasability %}
+                <div class="section">
+                    <div class="section-header rel">Releasability</div>
+                    <div id="appliedRel" class="empty-state">None selected</div>
+                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -368,28 +468,65 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const levelSelect = document.getElementById('levelSelect');
+    const levelRadios = document.querySelectorAll('.level-radio');
     const checkboxes = document.querySelectorAll('.caveat-checkbox');
     const banner = document.getElementById('classificationBanner');
     const appliedLevel = document.getElementById('appliedLevel');
     const appliedSCI = document.getElementById('appliedSCI');
     const appliedSAP = document.getElementById('appliedSAP');
     const appliedDiss = document.getElementById('appliedDiss');
+    const appliedRel = document.getElementById('appliedRel');
     const selectedLabelsInput = document.getElementById('selected_labels');
+
+    // ---- Releasability shuttle setup ----
+    const relAvailable = document.getElementById('relAvailable');
+    const relSelected = document.getElementById('relSelected');
+
+    function moveOptions(fromSelect, toSelect, onlySelected) {
+        const options = Array.from(fromSelect.options).filter(o => !onlySelected || o.selected);
+        options.forEach(o => {
+            o.selected = false;
+            toSelect.appendChild(o);
+        });
+    }
+
+    if (relAvailable && relSelected) {
+        // Move any pre-selected (existing classification, or default USA) into the "Releasable To" list
+        Array.from(relAvailable.options).filter(o => o.dataset.preselect).forEach(o => {
+            relSelected.appendChild(o);
+        });
+
+        document.getElementById('relAdd').addEventListener('click', function() {
+            moveOptions(relAvailable, relSelected, true);
+            updateDisplay();
+        });
+        document.getElementById('relRemove').addEventListener('click', function() {
+            moveOptions(relSelected, relAvailable, true);
+            updateDisplay();
+        });
+        document.getElementById('relAddAll').addEventListener('click', function() {
+            moveOptions(relAvailable, relSelected, false);
+            updateDisplay();
+        });
+        document.getElementById('relRemoveAll').addEventListener('click', function() {
+            moveOptions(relSelected, relAvailable, false);
+            updateDisplay();
+        });
+    }
 
     function updateDisplay() {
         const selectedIds = [];
         const markingParts = [];
 
-        // Get selected level
-        const levelOption = levelSelect.selectedOptions[0];
-        if (levelOption && levelOption.value) {
-            const code = levelOption.dataset.code;
-            const name = levelOption.dataset.name;
-            const color = levelOption.dataset.color;
+        // Get selected level (radio button)
+        const levelRadio = document.querySelector('.level-radio:checked');
+        if (levelRadio) {
+            const code = levelRadio.dataset.code;
+            const name = levelRadio.dataset.name;
+            const color = levelRadio.dataset.color;
 
             markingParts.push(code);
-            selectedIds.push(levelOption.value);
+            selectedIds.push(levelRadio.value);
 
             appliedLevel.innerHTML = `
                 <div class="applied-level">
@@ -481,11 +618,33 @@ document.addEventListener('DOMContentLoaded', function() {
             appliedDiss.innerHTML = '<div class="empty-state">None selected</div>';
         }
 
-        // Add event listeners to remove buttons
+        // Update Releasability section (from the shuttle's "selected" list)
+        if (relSelected) {
+            const relItems = Array.from(relSelected.options).map(o => ({
+                code: o.dataset.code, name: o.dataset.name, color: o.dataset.color, value: o.value
+            }));
+            selectedIds.push(...relItems.map(i => i.value));
+
+            if (relItems.length > 0) {
+                appliedRel.innerHTML = relItems.map(item => `
+                    <div class="applied-item">
+                        <div>
+                            <span class="label-badge" style="background-color: ${item.color};">${item.code}</span>
+                            ${item.name}
+                        </div>
+                    </div>
+                `).join('');
+                markingParts.push('REL TO ' + relItems.map(i => i.code).join(', '));
+            } else {
+                appliedRel.innerHTML = '<div class="empty-state">None selected</div>';
+            }
+        }
+
+        // Add event listeners to remove buttons (SCI/SAP/Diss only - releasability uses the shuttle)
         document.querySelectorAll('.remove-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const value = this.dataset.value;
-                const checkbox = document.querySelector(`input[value="${value}"]`);
+                const checkbox = document.querySelector(`input.caveat-checkbox[value="${value}"]`);
                 if (checkbox) {
                     checkbox.checked = false;
                     updateDisplay();
@@ -502,8 +661,8 @@ document.addEventListener('DOMContentLoaded', function() {
             banner.classList.remove('empty');
 
             // Set banner color to level color
-            if (levelOption && levelOption.value) {
-                const levelColor = levelOption.dataset.color;
+            if (levelRadio) {
+                const levelColor = levelRadio.dataset.color;
                 banner.style.backgroundColor = levelColor;
                 // Adjust border color to be slightly darker
                 const rgb = levelColor.match(/\d+/g);
@@ -523,8 +682,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Ensure every option sitting in the "selected" shuttle list actually
+    // submits, regardless of whether the user has it highlighted at submit time.
+    document.getElementById('classificationForm').addEventListener('submit', function() {
+        if (relSelected) {
+            Array.from(relSelected.options).forEach(o => { o.selected = true; });
+        }
+    });
+
     // Listen for changes
-    levelSelect.addEventListener('change', updateDisplay);
+    levelRadios.forEach(radio => radio.addEventListener('change', updateDisplay));
     checkboxes.forEach(cb => cb.addEventListener('change', updateDisplay));
 
     // Initial update

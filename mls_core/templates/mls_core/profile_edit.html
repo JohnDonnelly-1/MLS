@@ -39,6 +39,15 @@
                    value="{{ profile.clearance_expires|date:'Y-m-d'|default:'' }}">
         </div>
 
+        <div class="form-group">
+            <label>Or build from individual accesses</label>
+            <small style="margin-bottom: 8px;">
+                Check specific labels to compose a one-off clearance for this profile directly -
+                if anything is checked here, it overrides the "Direct Clearance" dropdown above.
+            </small>
+            {% include "mls_core/_label_picker.html" with field_name="individual_labels" %}
+        </div>
+
         <div class="section-heading">Groups</div>
         <div class="form-group">
             <label>MLS Groups <small style="display:inline;">(AND logic &mdash; ALL labels from ALL selected groups)</small></label>

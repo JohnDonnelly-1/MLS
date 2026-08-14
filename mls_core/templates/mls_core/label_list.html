@@ -70,4 +70,30 @@
     {% endif %}
 </div>
 {% endif %}
+
+{% if not selected_type or selected_type == 'REL' %}
+<div class="section-heading">Releasability (countries)</div>
+<div class="card">
+    {% if releasability_labels %}
+    <table>
+        <thead><tr><th>Code</th><th>Name</th><th>Description</th><th></th></tr></thead>
+        <tbody>
+            {% for label in releasability_labels %}
+            <tr>
+                <td><span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span></td>
+                <td>{{ label.name }}</td>
+                <td>{{ label.description|truncatewords:10 }}</td>
+                <td class="table-actions">
+                    <a href="{% url 'mls_core:label_edit' label.id %}">Edit</a>
+                    <a href="{% url 'mls_core:label_delete' label.id %}" class="danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="empty-state">No releasability labels yet.</div>
+    {% endif %}
+</div>
+{% endif %}
 {% endblock %}

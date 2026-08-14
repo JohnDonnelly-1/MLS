@@ -12,6 +12,46 @@
     </div>
 </div>
 
+<div class="section-heading">Effective Access (direct clearance + all groups, combined)</div>
+<div class="card">
+    <div class="label-type-group">
+        <div class="label-type-group-title">Levels</div>
+        <div class="label-badge-columns">
+            {% for label in all_labels %}{% if label.label_type == 'LVL' %}
+                <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }} &mdash; {{ label.name }}</span>
+            {% endif %}{% endfor %}
+        </div>
+    </div>
+    <div class="label-type-group">
+        <div class="label-type-group-title">Categories</div>
+        <div class="label-badge-columns">
+            {% for label in all_labels %}{% if label.label_type == 'CAT' %}
+                <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }} &mdash; {{ label.name }}</span>
+            {% endif %}{% endfor %}
+        </div>
+    </div>
+    <div class="label-type-group">
+        <div class="label-type-group-title">Releasability</div>
+        <div class="label-badge-columns">
+            {% for label in all_labels %}{% if label.label_type == 'REL' %}
+                <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }} &mdash; {{ label.name }}</span>
+            {% endif %}{% endfor %}
+        </div>
+    </div>
+    {% if not all_labels %}<p class="mls-user">No effective labels.</p>{% endif %}
+
+    <div class="label-type-group">
+        <div class="label-type-group-title">DAC Groups (including inherited)</div>
+        <div class="label-badge-columns">
+            {% for group in all_dac_groups %}
+                <span class="label-badge" style="background-color: #6c757d; color: #fff;">{{ group.name }}</span>
+            {% empty %}
+                <p class="mls-user">No DAC groups.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
 <div class="card">
     <div class="section-heading">User Information</div>
     <table>
@@ -25,7 +65,7 @@
     <div class="section-heading">Direct Clearance</div>
     {% if profile.clearances %}
         <p><strong>{{ profile.clearances.name }}</strong> {% if profile.clearances.description %}&mdash; {{ profile.clearances.description }}{% endif %}</p>
-        <div class="label-badge-list">
+        <div class="label-badge-columns">
             {% for label in profile.clearances.securities.all %}
                 <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
             {% endfor %}
@@ -61,37 +101,5 @@
     {% else %}
         <p class="mls-user">No DAC groups assigned.</p>
     {% endif %}
-</div>
-
-<div class="section-heading">Effective Access (direct clearance + all groups, combined)</div>
-<div class="card">
-    <div class="label-type-group">
-        <div class="label-type-group-title">Levels</div>
-        <div class="label-badge-list">
-            {% for label in all_labels %}{% if label.label_type == 'LVL' %}
-                <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }} &mdash; {{ label.name }}</span>
-            {% endif %}{% endfor %}
-        </div>
-    </div>
-    <div class="label-type-group">
-        <div class="label-type-group-title">Categories</div>
-        <div class="label-badge-list">
-            {% for label in all_labels %}{% if label.label_type == 'CAT' %}
-                <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }} &mdash; {{ label.name }}</span>
-            {% endif %}{% endfor %}
-        </div>
-    </div>
-    {% if not all_labels %}<p class="mls-user">No effective labels.</p>{% endif %}
-
-    <div class="label-type-group">
-        <div class="label-type-group-title">DAC Groups (including inherited)</div>
-        <div class="label-badge-list">
-            {% for group in all_dac_groups %}
-                <span class="label-badge" style="background-color: #6c757d; color: #fff;">{{ group.name }}</span>
-            {% empty %}
-                <p class="mls-user">No DAC groups.</p>
-            {% endfor %}
-        </div>
-    </div>
 </div>
 {% endblock %}

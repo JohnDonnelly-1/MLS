@@ -1,10 +1,12 @@
-{# Grouped label checkbox picker. Include with: level_labels, category_labels, checked_ids (set, optional) #}
+{# Grouped label checkbox picker. Include with: level_labels, category_labels,
+   releasability_labels (optional - omit to hide that column), checked_ids (set, optional),
+   field_name (optional, defaults to "securities") #}
 <div class="picker-columns">
     <div class="picker-column">
         <div class="picker-column-heading">Levels</div>
         {% for label in level_labels %}
             <label class="picker-option">
-                <input type="checkbox" name="securities" value="{{ label.id }}"
+                <input type="checkbox" name="{{ field_name|default:"securities" }}" value="{{ label.id }}"
                     {% if label.id in checked_ids %}checked{% endif %}>
                 <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
                 {{ label.name }}
@@ -17,7 +19,7 @@
         <div class="picker-column-heading">Categories</div>
         {% for label in category_labels %}
             <label class="picker-option">
-                <input type="checkbox" name="securities" value="{{ label.id }}"
+                <input type="checkbox" name="{{ field_name|default:"securities" }}" value="{{ label.id }}"
                     {% if label.id in checked_ids %}checked{% endif %}>
                 <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
                 {{ label.name }}
@@ -26,4 +28,19 @@
             <p class="mls-user">No category labels defined.</p>
         {% endfor %}
     </div>
+    {% if releasability_labels is not None %}
+    <div class="picker-column">
+        <div class="picker-column-heading">Releasability</div>
+        {% for label in releasability_labels %}
+            <label class="picker-option">
+                <input type="checkbox" name="{{ field_name|default:"securities" }}" value="{{ label.id }}"
+                    {% if label.id in checked_ids %}checked{% endif %}>
+                <span class="label-badge" style="background-color: {{ label.color }};">{{ label.short_code }}</span>
+                {{ label.name }}
+            </label>
+        {% empty %}
+            <p class="mls-user">No releasability labels defined.</p>
+        {% endfor %}
+    </div>
+    {% endif %}
 </div>

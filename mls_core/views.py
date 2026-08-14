@@ -110,6 +110,29 @@ def profile_detail(request, profile_id):
     return render(request, 'mls_core/profile_detail.html', context)
 
 
+def _find_or_create_clearance_for_labels(label_ids, name_hint=''):
+    """
+    Find an existing SecurityClearance with exactly this label set, or
+    create a new one. Returns None if label_ids is empty. Used by
+    profile_edit's "individual accesses" picker so an admin can compose a
+    one-off clearance from specific labels instead of only picking from
+    pre-named clearances.
+    """
+    label_ids = {int(i) for i in label_ids if str(i).strip()}
+    if not label_ids:
+        return None
+
+    for existing in SecurityClearance.objects.all():
+        if set(existing.securities.values_list('id', flat=True)) == label_ids:
+            return existing
+
+    clearance = SecurityClearance.objects.create(
+        name=f"{name_hint}_{len(label_ids)}LABELS".strip('_')[:100]
+    )
+    clearance.securities.set(SecurityLabel.objects.filter(id__in=label_ids))
+    return clearance
+
+
 @login_required
 @permission_required('mls_core.security_manager', raise_exception=True)
 def profile_edit(request, profile_id):
@@ -120,12 +143,20 @@ def profile_edit(request, profile_id):
     profile = get_object_or_404(SecurityProfile, pk=profile_id)
 
     if request.method == 'POST':
-        # Update clearance
-        clearance_id = request.POST.get('clearances')
-        if clearance_id:
-            profile.clearances = SecurityClearance.objects.get(pk=clearance_id)
+        # Individual labels take priority over the named-clearance dropdown
+        # if any are checked - lets an admin compose a one-off clearance
+        # directly instead of needing a pre-existing named one.
+        individual_label_ids = request.POST.getlist('individual_labels')
+        if individual_label_ids:
+            profile.clearances = _find_or_create_clearance_for_labels(
+                individual_label_ids, name_hint=f"PROFILE_{profile.user.username}"
+            )
         else:
-            profile.clearances = None
+            clearance_id = request.POST.get('clearances')
+            if clearance_id:
+                profile.clearances = SecurityClearance.objects.get(pk=clearance_id)
+            else:
+                profile.clearances = None
 
         # Update MLS groups
         mls_group_ids = request.POST.getlist('mls_groups')
@@ -154,6 +185,10 @@ def profile_edit(request, profile_id):
         'all_clearances': SecurityClearance.objects.all(),
         'all_mls_groups': MLSGroup.objects.filter(is_active=True),
         'all_dac_groups': DACGroup.objects.filter(is_active=True),
+        'level_labels': SecurityLabel.objects.filter(label_type=SecurityLabel.LabelType.LEVEL).order_by('rank'),
+        'category_labels': SecurityLabel.objects.filter(label_type=SecurityLabel.LabelType.CATEGORY).order_by('short_code'),
+        'releasability_labels': SecurityLabel.objects.filter(label_type=SecurityLabel.LabelType.RELEASABILITY).order_by('short_code'),
+        'checked_ids': set(profile.clearances.securities.values_list('id', flat=True)) if profile.clearances else set(),
     }
     return render(request, 'mls_core/profile_edit.html', context)
 
@@ -257,6 +292,7 @@ def label_list(request):
     context = {
         'level_labels': labels.filter(label_type=SecurityLabel.LabelType.LEVEL).order_by('rank'),
         'category_labels': labels.filter(label_type=SecurityLabel.LabelType.CATEGORY).order_by('short_code'),
+        'releasability_labels': labels.filter(label_type=SecurityLabel.LabelType.RELEASABILITY).order_by('short_code'),
         'label_types': SecurityLabel.LabelType.choices,
         'selected_type': label_type,
     }
@@ -520,6 +556,7 @@ def clearance_create(request):
     context = {
         'level_labels': SecurityLabel.objects.filter(label_type=SecurityLabel.LabelType.LEVEL).order_by('rank'),
         'category_labels': SecurityLabel.objects.filter(label_type=SecurityLabel.LabelType.CATEGORY).order_by('short_code'),
+        'releasability_labels': SecurityLabel.objects.filter(label_type=SecurityLabel.LabelType.RELEASABILITY).order_by('short_code'),
     }
     return render(request, 'mls_core/clearance_create.html', context)
 
@@ -546,6 +583,7 @@ def clearance_edit(request, clearance_id):
         'clearance': clearance,
         'level_labels': SecurityLabel.objects.filter(label_type=SecurityLabel.LabelType.LEVEL).order_by('rank'),
         'category_labels': SecurityLabel.objects.filter(label_type=SecurityLabel.LabelType.CATEGORY).order_by('short_code'),
+        'releasability_labels': SecurityLabel.objects.filter(label_type=SecurityLabel.LabelType.RELEASABILITY).order_by('short_code'),
         'checked_ids': set(clearance.securities.values_list('id', flat=True)),
     }
     return render(request, 'mls_core/clearance_edit.html', context)
@@ -607,6 +645,9 @@ def classification_helper(request):
     # No separate "other_categories" - everything goes into SAP
     other_categories = None
 
+    # Releasability (countries) - its own label_type, not a CAT pattern match
+    releasability = SecurityLabel.objects.filter(label_type='REL').order_by('short_code')
+
     # Get existing classification if provided
     existing_clearance = None
     existing_labels = []
@@ -635,6 +676,7 @@ def classification_helper(request):
         'sap_access': sap_access,
         'dissemination': dissemination,
         'other_categories': other_categories,
+        'releasability': releasability,
         'existing_clearance': existing_clearance,
         'existing_labels': existing_labels,
         'existing_level': existing_level,

@@ -193,6 +193,18 @@ tr:last-child td { border-bottom: none; }
 }
 .label-badge-list { display: flex; flex-wrap: wrap; gap: 0; }
 
+/* Vertical multi-column badge layout (flows top-to-bottom per column,
+   then across) - used where a horizontal-wrap list reads as one long row */
+.label-badge-columns {
+    columns: 3 200px;
+    column-gap: 16px;
+}
+.label-badge-columns .label-badge {
+    display: block;
+    width: fit-content;
+    break-inside: avoid;
+}
+
 /* ---- Grouped label sections (Levels vs Categories) ---- */
 .label-type-group { margin-bottom: 22px; }
 .label-type-group:last-child { margin-bottom: 0; }

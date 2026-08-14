@@ -135,6 +135,47 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(f'  - Dissemination already exists: {diss["short_code"]}')
 
+        # Releasability (countries) - REL TO markings
+        countries = [
+            {'short_code': 'USA', 'name': 'United States'},
+            {'short_code': 'GBR', 'name': 'United Kingdom'},
+            {'short_code': 'CAN', 'name': 'Canada'},
+            {'short_code': 'AUS', 'name': 'Australia'},
+            {'short_code': 'NZL', 'name': 'New Zealand'},
+            {'short_code': 'DEU', 'name': 'Germany'},
+            {'short_code': 'FRA', 'name': 'France'},
+            {'short_code': 'ITA', 'name': 'Italy'},
+            {'short_code': 'ESP', 'name': 'Spain'},
+            {'short_code': 'NLD', 'name': 'Netherlands'},
+            {'short_code': 'BEL', 'name': 'Belgium'},
+            {'short_code': 'POL', 'name': 'Poland'},
+            {'short_code': 'NOR', 'name': 'Norway'},
+            {'short_code': 'DNK', 'name': 'Denmark'},
+            {'short_code': 'PRT', 'name': 'Portugal'},
+            {'short_code': 'GRC', 'name': 'Greece'},
+            {'short_code': 'TUR', 'name': 'Turkey'},
+            {'short_code': 'JPN', 'name': 'Japan'},
+            {'short_code': 'KOR', 'name': 'South Korea'},
+            {'short_code': 'ISR', 'name': 'Israel'},
+        ]
+
+        for country in countries:
+            obj, created = SecurityLabel.objects.get_or_create(
+                short_code=country['short_code'],
+                defaults={
+                    'name': country['name'],
+                    'label_type': 'REL',
+                    'rank': 0,
+                    'color': '#1B7F79',
+                    'description': f"Releasable to {country['name']}"
+                }
+            )
+            if created:
+                labels_created += 1
+                self.stdout.write(f'  ✓ Created releasability: {country["short_code"]}')
+            else:
+                self.stdout.write(f'  - Releasability already exists: {country["short_code"]}')
+
         self.stdout.write(self.style.SUCCESS(f'\n✓ Done! Created {labels_created} new labels.'))
         self.stdout.write(self.style.SUCCESS(f'Total labels in system: {SecurityLabel.objects.count()}'))
         self.stdout.write(self.style.SUCCESS('\nYou can now try the classification helper at:'))

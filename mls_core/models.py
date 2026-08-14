@@ -24,14 +24,22 @@ class SecurityLabel(models.Model):
     """
     Security labels are the building blocks of MLS.
 
-    Two types:
+    Three types:
     - LEVEL: Hierarchical (UNCLASSIFIED < CONFIDENTIAL < SECRET < TOP SECRET)
     - CATEGORY: Compartments (CRYPTO, INTEL, NATO, etc.)
+    - RELEASABILITY: Countries content may be released to (REL TO USA, GBR, ...)
+
+    Releasability is modeled as its own label_type rather than folded into
+    CATEGORY (which is how the classification helper used to bucket
+    dissemination-style controls by short_code pattern-matching) so that
+    "which labels are countries" is an explicit, queryable fact instead of
+    a fragile naming convention.
     """
 
     class LabelType(models.TextChoices):
         LEVEL = "LVL", "Level"
         CATEGORY = "CAT", "Category"
+        RELEASABILITY = "REL", "Releasability"
 
     short_code = models.CharField(
         max_length=10,
@@ -46,7 +54,7 @@ class SecurityLabel(models.Model):
         max_length=3,
         choices=LabelType.choices,
         default=LabelType.CATEGORY,
-        help_text="Level (hierarchical) or Category (compartment)"
+        help_text="Level (hierarchical), Category (compartment), or Releasability (country)"
     )
     rank = models.IntegerField(
         default=0,
@@ -129,6 +137,10 @@ class SecurityClearance(models.Model):
     def get_categories(self):
         """Get all category labels (compartments)"""
         return self.securities.filter(label_type=SecurityLabel.LabelType.CATEGORY)
+
+    def get_releasability(self):
+        """Get all releasability labels (countries)"""
+        return self.securities.filter(label_type=SecurityLabel.LabelType.RELEASABILITY)
 
     def has_label(self, label):
         """Check if this clearance includes a specific label"""
